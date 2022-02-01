@@ -441,7 +441,7 @@ interface IWAVAX9 is IERC20 {
     function deposit() external payable;
 }
 
-contract TimeBondDepository is Ownable {
+contract TimeEthBondDepository is Ownable {
 
     using FixedPoint for *;
     using SafeERC20 for IERC20;

@@ -10,19 +10,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "_recipient",
-        type: "address",
-      },
-    ],
-    name: "claim",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "uint256",
         name: "_amount",
         type: "uint256",

@@ -124,7 +124,7 @@ async function main() {
     await memo.initialize(staking.address);
     console.log("initialize sblkd");
 
-    await staking.setContract("1", StakingWarmup.address); // Set Warmup Contract ( Later set up LP Staking too )
+    await staking.setContract("1", stakingWarmup.address); // Set Warmup Contract ( Later set up LP Staking too )
     console.log("setDistributor for Staking:", distributor.address);
 
     await staking.setWarmup(warmupPeriod);
@@ -138,23 +138,27 @@ async function main() {
     
     ////////////////////////////////////////////////////////////////////////////////
 
-    await treasury.queue(8, distributor.address, zeroAddress); // Allows distributor to mint BLKD.
+    await treasury.queue(8, distributor.address); // Allows distributor to mint BLKD.
     await treasury.toggle(8, distributor.address, zeroAddress); // Allows distributor to mint BLKD.
     console.log("Treasury.enable(8):  distributor enabled to mint ohm on treasury");
 
+    // await treasury.queue(8, deployer.address); // Allows deployer to mint BLKD.
+    // await treasury.toggle(8, deployer.address, zeroAddress); // Allows deployer to mint BLKD.
+    // console.log("Treasury.enable(8):  Deployer enabled to mint ohm on treasury");
+
     // Treasury Actions
-    await treasury.enable(0, deployer.address, zeroAddress); // Enable the deployer to deposit reserve tokens
+    await treasury.queue(0, deployer.address); // Enable the deployer to deposit reserve tokens
     await treasury.toggle(0, deployer.address, zeroAddress); // Enable the deployer to deposit reserve tokens
     console.log("Deployer Enabled on Treasury(0): ", deployer.address);
-    await treasury.enable(2, dai.address, zeroAddress); // Enable DAI as a reserve Token
-    await treasury.toggle(2, dai.address, zeroAddress); // Enable DAI as a reserve Token
-    console.log("DAI Enabled on Treasury(2) as reserve: ", dai.address);
+    // await treasury.queue(2, dai.address); // Enable DAI as a reserve Token
+    // await treasury.toggle(2, dai.address, zeroAddress); // Enable DAI as a reserve Token
+    // console.log("DAI Enabled on Treasury(2) as reserve: ", dai.address);
 
     // Deposit and Mint blkd
     const daiAmount = "100000000000000000000000000000000"
     await dai.approve(treasury.address, daiAmount); // Approve treasury to use the DAI
     console.log("DAI Approved to treasury :", daiAmount);
-    await treasury.deposit(daiAmount, dai.address, 0); // Deposit DAI into treasury
+    await treasury.deposit(daiAmount, dai.address, "0"); // Deposit DAI into treasury
     console.log("DAI Deposited in treasury :", daiAmount);
     const blkdMintedAgainstDai = await time.balanceOf(deployer.address);
     console.log("Time minted against DAI: ", blkdMintedAgainstDai.toString());
