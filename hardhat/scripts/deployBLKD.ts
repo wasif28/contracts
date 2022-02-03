@@ -7,7 +7,7 @@ async function main() {
 
     const date = new Date().getTime();
     const timelock = "0";
-    const epochLength = 600;
+    const epochLength = 28800;
     const firstEpochNumber = "0";
     const firstEpochTime = parseInt(JSON.stringify((date / 1000) + epochLength ));
     const index = "1";
@@ -72,8 +72,8 @@ async function main() {
     await memo.initialize(staking.address);
     console.log("initialize sblkd");
 
-    // await memo.setIndex(index);
-    // console.log("set Index");
+    await memo.setIndex(index);
+    console.log("set Index");
 
     const Distributor = await ethers.getContractFactory("Distributor");
     const distributor = await Distributor.deploy(
@@ -110,8 +110,8 @@ async function main() {
     await staking.setContract("0", distributor.address); // Set distributor Contract ( Later set up LP Staking too )
     console.log("setDistributor for Staking:", distributor.address);
 
-    // await staking.setWarmup(warmupPeriod);
-    // console.log("setWarmup for Staking:", warmupPeriod);
+    await staking.setWarmup(warmupPeriod);
+    console.log("setWarmup for Staking:", warmupPeriod);
 
     const WrappedMemo = await ethers.getContractFactory("wMEMO");
     const wMemo = await WrappedMemo.deploy(
@@ -152,11 +152,11 @@ async function main() {
 
 
     await mimBond.initializeBondTerms(
-        50,
-        100,
-        1000,
-        100,
-        "10000000000000000000",
+        1,
+        1,
+        1,
+        1,
+        "100",
         0,
         129600,
     );
@@ -169,10 +169,10 @@ async function main() {
     console.log("Staking Helper for MIM BOND");
 
     await ethBond.initializeBondTerms(
-        257,
-        10,
-        750,
-        "2000000000000000",
+        1,
+        1,
+        1,
+        "100",
         0,
         129600,
     );
