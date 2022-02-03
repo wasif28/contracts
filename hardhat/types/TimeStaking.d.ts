@@ -24,21 +24,24 @@ interface TimeStakingInterface extends ethers.utils.Interface {
     "Memories()": FunctionFragment;
     "Time()": FunctionFragment;
     "claim(address)": FunctionFragment;
-    "claimOwnership()": FunctionFragment;
     "contractBalance()": FunctionFragment;
     "distributor()": FunctionFragment;
     "epoch()": FunctionFragment;
     "forfeit()": FunctionFragment;
+    "giveLockBonus(uint256)": FunctionFragment;
     "index()": FunctionFragment;
-    "owner()": FunctionFragment;
-    "pendingOwner()": FunctionFragment;
+    "locker()": FunctionFragment;
+    "manager()": FunctionFragment;
+    "pullManagement()": FunctionFragment;
+    "pushManagement(address)": FunctionFragment;
     "rebase()": FunctionFragment;
+    "renounceManagement()": FunctionFragment;
+    "returnLockBonus(uint256)": FunctionFragment;
     "setContract(uint8,address)": FunctionFragment;
     "setWarmup(uint256)": FunctionFragment;
     "stake(uint256,address)": FunctionFragment;
     "toggleDepositLock()": FunctionFragment;
     "totalBonus()": FunctionFragment;
-    "transferOwnership(address,bool,bool)": FunctionFragment;
     "unstake(uint256,bool)": FunctionFragment;
     "warmupContract()": FunctionFragment;
     "warmupInfo(address)": FunctionFragment;
@@ -49,10 +52,6 @@ interface TimeStakingInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "Time", values?: undefined): string;
   encodeFunctionData(functionFragment: "claim", values: [string]): string;
   encodeFunctionData(
-    functionFragment: "claimOwnership",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "contractBalance",
     values?: undefined
   ): string;
@@ -62,13 +61,30 @@ interface TimeStakingInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "epoch", values?: undefined): string;
   encodeFunctionData(functionFragment: "forfeit", values?: undefined): string;
-  encodeFunctionData(functionFragment: "index", values?: undefined): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "pendingOwner",
+    functionFragment: "giveLockBonus",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(functionFragment: "index", values?: undefined): string;
+  encodeFunctionData(functionFragment: "locker", values?: undefined): string;
+  encodeFunctionData(functionFragment: "manager", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "pullManagement",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "pushManagement",
+    values: [string]
+  ): string;
   encodeFunctionData(functionFragment: "rebase", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "renounceManagement",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "returnLockBonus",
+    values: [BigNumberish]
+  ): string;
   encodeFunctionData(
     functionFragment: "setContract",
     values: [BigNumberish, string]
@@ -90,10 +106,6 @@ interface TimeStakingInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [string, boolean, boolean]
-  ): string;
-  encodeFunctionData(
     functionFragment: "unstake",
     values: [BigNumberish, boolean]
   ): string;
@@ -111,10 +123,6 @@ interface TimeStakingInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "Time", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "claim", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "claimOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "contractBalance",
     data: BytesLike
   ): Result;
@@ -124,13 +132,30 @@ interface TimeStakingInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "epoch", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "forfeit", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "index", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "pendingOwner",
+    functionFragment: "giveLockBonus",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "index", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "locker", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "manager", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "pullManagement",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "pushManagement",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "rebase", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "renounceManagement",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "returnLockBonus",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "setContract",
     data: BytesLike
@@ -142,10 +167,6 @@ interface TimeStakingInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "totalBonus", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "unstake", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "warmupContract",
@@ -158,65 +179,19 @@ interface TimeStakingInterface extends ethers.utils.Interface {
   ): Result;
 
   events: {
-    "LogClaim(address,uint256)": EventFragment;
-    "LogDepositLock(address,bool)": EventFragment;
-    "LogForfeit(address,uint256,uint256)": EventFragment;
-    "LogRebase(uint256)": EventFragment;
-    "LogSetContract(uint8,address)": EventFragment;
-    "LogStake(address,uint256)": EventFragment;
-    "LogUnstake(address,uint256)": EventFragment;
-    "LogWarmupPeriod(uint256)": EventFragment;
-    "OwnershipTransferred(address,address)": EventFragment;
+    "OwnershipPulled(address,address)": EventFragment;
+    "OwnershipPushed(address,address)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "LogClaim"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "LogDepositLock"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "LogForfeit"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "LogRebase"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "LogSetContract"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "LogStake"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "LogUnstake"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "LogWarmupPeriod"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OwnershipPulled"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OwnershipPushed"): EventFragment;
 }
 
-export type LogClaimEvent = TypedEvent<
-  [string, BigNumber] & { recipient: string; amount: BigNumber }
+export type OwnershipPulledEvent = TypedEvent<
+  [string, string] & { previousOwner: string; newOwner: string }
 >;
 
-export type LogDepositLockEvent = TypedEvent<
-  [string, boolean] & { user: string; locked: boolean }
->;
-
-export type LogForfeitEvent = TypedEvent<
-  [string, BigNumber, BigNumber] & {
-    recipient: string;
-    memoAmount: BigNumber;
-    timeAmount: BigNumber;
-  }
->;
-
-export type LogRebaseEvent = TypedEvent<
-  [BigNumber] & { distribute: BigNumber }
->;
-
-export type LogSetContractEvent = TypedEvent<
-  [number, string] & { contractType: number; _contract: string }
->;
-
-export type LogStakeEvent = TypedEvent<
-  [string, BigNumber] & { recipient: string; amount: BigNumber }
->;
-
-export type LogUnstakeEvent = TypedEvent<
-  [string, BigNumber] & { recipient: string; amount: BigNumber }
->;
-
-export type LogWarmupPeriodEvent = TypedEvent<
-  [BigNumber] & { period: BigNumber }
->;
-
-export type OwnershipTransferredEvent = TypedEvent<
+export type OwnershipPushedEvent = TypedEvent<
   [string, string] & { previousOwner: string; newOwner: string }
 >;
 
@@ -273,10 +248,6 @@ export class TimeStaking extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    claimOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     contractBalance(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     distributor(overrides?: CallOverrides): Promise<[string]>;
@@ -296,13 +267,36 @@ export class TimeStaking extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    giveLockBonus(
+      _amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     index(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    owner(overrides?: CallOverrides): Promise<[string]>;
+    locker(overrides?: CallOverrides): Promise<[string]>;
 
-    pendingOwner(overrides?: CallOverrides): Promise<[string]>;
+    manager(overrides?: CallOverrides): Promise<[string]>;
+
+    pullManagement(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    pushManagement(
+      newOwner_: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     rebase(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    renounceManagement(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    returnLockBonus(
+      _amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -328,13 +322,6 @@ export class TimeStaking extends BaseContract {
     ): Promise<ContractTransaction>;
 
     totalBonus(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    transferOwnership(
-      newOwner: string,
-      direct: boolean,
-      renounce: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
 
     unstake(
       _amount: BigNumberish,
@@ -368,10 +355,6 @@ export class TimeStaking extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  claimOwnership(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   contractBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
   distributor(overrides?: CallOverrides): Promise<string>;
@@ -391,13 +374,36 @@ export class TimeStaking extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  giveLockBonus(
+    _amount: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   index(overrides?: CallOverrides): Promise<BigNumber>;
 
-  owner(overrides?: CallOverrides): Promise<string>;
+  locker(overrides?: CallOverrides): Promise<string>;
 
-  pendingOwner(overrides?: CallOverrides): Promise<string>;
+  manager(overrides?: CallOverrides): Promise<string>;
+
+  pullManagement(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  pushManagement(
+    newOwner_: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   rebase(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  renounceManagement(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  returnLockBonus(
+    _amount: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -423,13 +429,6 @@ export class TimeStaking extends BaseContract {
   ): Promise<ContractTransaction>;
 
   totalBonus(overrides?: CallOverrides): Promise<BigNumber>;
-
-  transferOwnership(
-    newOwner: string,
-    direct: boolean,
-    renounce: boolean,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
 
   unstake(
     _amount: BigNumberish,
@@ -460,8 +459,6 @@ export class TimeStaking extends BaseContract {
 
     claim(_recipient: string, overrides?: CallOverrides): Promise<void>;
 
-    claimOwnership(overrides?: CallOverrides): Promise<void>;
-
     contractBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
     distributor(overrides?: CallOverrides): Promise<string>;
@@ -479,13 +476,29 @@ export class TimeStaking extends BaseContract {
 
     forfeit(overrides?: CallOverrides): Promise<void>;
 
+    giveLockBonus(
+      _amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     index(overrides?: CallOverrides): Promise<BigNumber>;
 
-    owner(overrides?: CallOverrides): Promise<string>;
+    locker(overrides?: CallOverrides): Promise<string>;
 
-    pendingOwner(overrides?: CallOverrides): Promise<string>;
+    manager(overrides?: CallOverrides): Promise<string>;
+
+    pullManagement(overrides?: CallOverrides): Promise<void>;
+
+    pushManagement(newOwner_: string, overrides?: CallOverrides): Promise<void>;
 
     rebase(overrides?: CallOverrides): Promise<void>;
+
+    renounceManagement(overrides?: CallOverrides): Promise<void>;
+
+    returnLockBonus(
+      _amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     setContract(
       _contract: BigNumberish,
@@ -507,13 +520,6 @@ export class TimeStaking extends BaseContract {
     toggleDepositLock(overrides?: CallOverrides): Promise<void>;
 
     totalBonus(overrides?: CallOverrides): Promise<BigNumber>;
-
-    transferOwnership(
-      newOwner: string,
-      direct: boolean,
-      renounce: boolean,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     unstake(
       _amount: BigNumberish,
@@ -539,115 +545,7 @@ export class TimeStaking extends BaseContract {
   };
 
   filters: {
-    "LogClaim(address,uint256)"(
-      recipient?: string | null,
-      amount?: null
-    ): TypedEventFilter<
-      [string, BigNumber],
-      { recipient: string; amount: BigNumber }
-    >;
-
-    LogClaim(
-      recipient?: string | null,
-      amount?: null
-    ): TypedEventFilter<
-      [string, BigNumber],
-      { recipient: string; amount: BigNumber }
-    >;
-
-    "LogDepositLock(address,bool)"(
-      user?: string | null,
-      locked?: null
-    ): TypedEventFilter<[string, boolean], { user: string; locked: boolean }>;
-
-    LogDepositLock(
-      user?: string | null,
-      locked?: null
-    ): TypedEventFilter<[string, boolean], { user: string; locked: boolean }>;
-
-    "LogForfeit(address,uint256,uint256)"(
-      recipient?: string | null,
-      memoAmount?: null,
-      timeAmount?: null
-    ): TypedEventFilter<
-      [string, BigNumber, BigNumber],
-      { recipient: string; memoAmount: BigNumber; timeAmount: BigNumber }
-    >;
-
-    LogForfeit(
-      recipient?: string | null,
-      memoAmount?: null,
-      timeAmount?: null
-    ): TypedEventFilter<
-      [string, BigNumber, BigNumber],
-      { recipient: string; memoAmount: BigNumber; timeAmount: BigNumber }
-    >;
-
-    "LogRebase(uint256)"(
-      distribute?: null
-    ): TypedEventFilter<[BigNumber], { distribute: BigNumber }>;
-
-    LogRebase(
-      distribute?: null
-    ): TypedEventFilter<[BigNumber], { distribute: BigNumber }>;
-
-    "LogSetContract(uint8,address)"(
-      contractType?: null,
-      _contract?: string | null
-    ): TypedEventFilter<
-      [number, string],
-      { contractType: number; _contract: string }
-    >;
-
-    LogSetContract(
-      contractType?: null,
-      _contract?: string | null
-    ): TypedEventFilter<
-      [number, string],
-      { contractType: number; _contract: string }
-    >;
-
-    "LogStake(address,uint256)"(
-      recipient?: string | null,
-      amount?: null
-    ): TypedEventFilter<
-      [string, BigNumber],
-      { recipient: string; amount: BigNumber }
-    >;
-
-    LogStake(
-      recipient?: string | null,
-      amount?: null
-    ): TypedEventFilter<
-      [string, BigNumber],
-      { recipient: string; amount: BigNumber }
-    >;
-
-    "LogUnstake(address,uint256)"(
-      recipient?: string | null,
-      amount?: null
-    ): TypedEventFilter<
-      [string, BigNumber],
-      { recipient: string; amount: BigNumber }
-    >;
-
-    LogUnstake(
-      recipient?: string | null,
-      amount?: null
-    ): TypedEventFilter<
-      [string, BigNumber],
-      { recipient: string; amount: BigNumber }
-    >;
-
-    "LogWarmupPeriod(uint256)"(
-      period?: null
-    ): TypedEventFilter<[BigNumber], { period: BigNumber }>;
-
-    LogWarmupPeriod(
-      period?: null
-    ): TypedEventFilter<[BigNumber], { period: BigNumber }>;
-
-    "OwnershipTransferred(address,address)"(
+    "OwnershipPulled(address,address)"(
       previousOwner?: string | null,
       newOwner?: string | null
     ): TypedEventFilter<
@@ -655,7 +553,23 @@ export class TimeStaking extends BaseContract {
       { previousOwner: string; newOwner: string }
     >;
 
-    OwnershipTransferred(
+    OwnershipPulled(
+      previousOwner?: string | null,
+      newOwner?: string | null
+    ): TypedEventFilter<
+      [string, string],
+      { previousOwner: string; newOwner: string }
+    >;
+
+    "OwnershipPushed(address,address)"(
+      previousOwner?: string | null,
+      newOwner?: string | null
+    ): TypedEventFilter<
+      [string, string],
+      { previousOwner: string; newOwner: string }
+    >;
+
+    OwnershipPushed(
       previousOwner?: string | null,
       newOwner?: string | null
     ): TypedEventFilter<
@@ -674,10 +588,6 @@ export class TimeStaking extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    claimOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     contractBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
     distributor(overrides?: CallOverrides): Promise<BigNumber>;
@@ -688,13 +598,36 @@ export class TimeStaking extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    giveLockBonus(
+      _amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     index(overrides?: CallOverrides): Promise<BigNumber>;
 
-    owner(overrides?: CallOverrides): Promise<BigNumber>;
+    locker(overrides?: CallOverrides): Promise<BigNumber>;
 
-    pendingOwner(overrides?: CallOverrides): Promise<BigNumber>;
+    manager(overrides?: CallOverrides): Promise<BigNumber>;
+
+    pullManagement(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    pushManagement(
+      newOwner_: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     rebase(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    renounceManagement(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    returnLockBonus(
+      _amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -721,13 +654,6 @@ export class TimeStaking extends BaseContract {
 
     totalBonus(overrides?: CallOverrides): Promise<BigNumber>;
 
-    transferOwnership(
-      newOwner: string,
-      direct: boolean,
-      renounce: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     unstake(
       _amount: BigNumberish,
       _trigger: boolean,
@@ -751,10 +677,6 @@ export class TimeStaking extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    claimOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     contractBalance(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     distributor(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -765,13 +687,36 @@ export class TimeStaking extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    giveLockBonus(
+      _amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     index(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    locker(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    pendingOwner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    manager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    pullManagement(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    pushManagement(
+      newOwner_: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
     rebase(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    renounceManagement(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    returnLockBonus(
+      _amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -797,13 +742,6 @@ export class TimeStaking extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     totalBonus(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    transferOwnership(
-      newOwner: string,
-      direct: boolean,
-      renounce: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
 
     unstake(
       _amount: BigNumberish,

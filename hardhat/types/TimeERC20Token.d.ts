@@ -23,6 +23,7 @@ interface TimeERC20TokenInterface extends ethers.utils.Interface {
   functions: {
     "DOMAIN_SEPARATOR()": FunctionFragment;
     "PERMIT_TYPEHASH()": FunctionFragment;
+    "_burnFrom(address,uint256)": FunctionFragment;
     "allowance(address,address)": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
@@ -53,6 +54,10 @@ interface TimeERC20TokenInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "PERMIT_TYPEHASH",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "_burnFrom",
+    values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "allowance",
@@ -128,6 +133,7 @@ interface TimeERC20TokenInterface extends ethers.utils.Interface {
     functionFragment: "PERMIT_TYPEHASH",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "_burnFrom", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
@@ -172,13 +178,11 @@ interface TimeERC20TokenInterface extends ethers.utils.Interface {
     "Approval(address,address,uint256)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
-    "VaultTransferred(address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "VaultTransferred"): EventFragment;
 }
 
 export type ApprovalEvent = TypedEvent<
@@ -196,8 +200,6 @@ export type OwnershipTransferredEvent = TypedEvent<
 export type TransferEvent = TypedEvent<
   [string, string, BigNumber] & { from: string; to: string; value: BigNumber }
 >;
-
-export type VaultTransferredEvent = TypedEvent<[string] & { newVault: string }>;
 
 export class TimeERC20Token extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -246,6 +248,12 @@ export class TimeERC20Token extends BaseContract {
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<[string]>;
 
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
+
+    _burnFrom(
+      account_: string,
+      amount_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     allowance(
       owner: string,
@@ -347,6 +355,12 @@ export class TimeERC20Token extends BaseContract {
 
   PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
+  _burnFrom(
+    account_: string,
+    amount_: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   allowance(
     owner: string,
     spender: string,
@@ -447,6 +461,12 @@ export class TimeERC20Token extends BaseContract {
 
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
+    _burnFrom(
+      account_: string,
+      amount_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     allowance(
       owner: string,
       spender: string,
@@ -508,7 +528,7 @@ export class TimeERC20Token extends BaseContract {
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
-    setVault(vault_: string, overrides?: CallOverrides): Promise<void>;
+    setVault(vault_: string, overrides?: CallOverrides): Promise<boolean>;
 
     symbol(overrides?: CallOverrides): Promise<string>;
 
@@ -587,20 +607,18 @@ export class TimeERC20Token extends BaseContract {
       [string, string, BigNumber],
       { from: string; to: string; value: BigNumber }
     >;
-
-    "VaultTransferred(address)"(
-      newVault?: string | null
-    ): TypedEventFilter<[string], { newVault: string }>;
-
-    VaultTransferred(
-      newVault?: string | null
-    ): TypedEventFilter<[string], { newVault: string }>;
   };
 
   estimateGas: {
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<BigNumber>;
 
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
+
+    _burnFrom(
+      account_: string,
+      amount_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     allowance(
       owner: string,
@@ -702,6 +720,12 @@ export class TimeERC20Token extends BaseContract {
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    _burnFrom(
+      account_: string,
+      amount_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
     allowance(
       owner: string,

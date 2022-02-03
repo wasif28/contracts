@@ -1,53 +1,123 @@
+/**
+ *Submitted for verification at snowtrace.io on 2021-11-06
+*/
+
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity 0.7.5;
 
-library LowGasSafeMath {
-    /// @notice Returns x + y, reverts if sum overflows uint256
-    /// @param x The augend
-    /// @param y The addend
-    /// @return z The sum of x and y
-    function add(uint256 x, uint256 y) internal pure returns (uint256 z) {
-        require((z = x + y) >= x);
+library SafeMath {
+    /**
+     * @dev Returns the addition of two unsigned integers, reverting on
+     * overflow.
+     *
+     * Counterpart to Solidity's `+` operator.
+     *
+     * Requirements:
+     *
+     * - Addition cannot overflow.
+     */
+    function add(uint256 a, uint256 b) internal pure returns (uint256) {
+        uint256 c = a + b;
+        require(c >= a, "SafeMath: addition overflow");
+
+        return c;
+    }
+    function add32(uint32 a, uint32 b) internal pure returns (uint32) {
+        uint32 c = a + b;
+        require(c >= a, "SafeMath: addition overflow");
+
+        return c;
     }
 
-    function add32(uint32 x, uint32 y) internal pure returns (uint32 z) {
-        require((z = x + y) >= x);
+    /**
+     * @dev Returns the subtraction of two unsigned integers, reverting on
+     * overflow (when the result is negative).
+     *
+     * Counterpart to Solidity's `-` operator.
+     *
+     * Requirements:
+     *
+     * - Subtraction cannot overflow.
+     */
+    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+        return sub(a, b, "SafeMath: subtraction overflow");
     }
 
-    /// @notice Returns x - y, reverts if underflows
-    /// @param x The minuend
-    /// @param y The subtrahend
-    /// @return z The difference of x and y
-    function sub(uint256 x, uint256 y) internal pure returns (uint256 z) {
-        require((z = x - y) <= x);
+    /**
+     * @dev Returns the subtraction of two unsigned integers, reverting with custom message on
+     * overflow (when the result is negative).
+     *
+     * Counterpart to Solidity's `-` operator.
+     *
+     * Requirements:
+     *
+     * - Subtraction cannot overflow.
+     */
+    function sub(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+        require(b <= a, errorMessage);
+        uint256 c = a - b;
+
+        return c;
     }
 
-    function sub32(uint32 x, uint32 y) internal pure returns (uint32 z) {
-        require((z = x - y) <= x);
+    /**
+     * @dev Returns the multiplication of two unsigned integers, reverting on
+     * overflow.
+     *
+     * Counterpart to Solidity's `*` operator.
+     *
+     * Requirements:
+     *
+     * - Multiplication cannot overflow.
+     */
+    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+        // Gas optimization: this is cheaper than requiring 'a' not being zero, but the
+        // benefit is lost if 'b' is also tested.
+        // See: https://github.com/OpenZeppelin/openzeppelin-contracts/pull/522
+        if (a == 0) {
+            return 0;
+        }
+
+        uint256 c = a * b;
+        require(c / a == b, "SafeMath: multiplication overflow");
+
+        return c;
     }
 
-    /// @notice Returns x * y, reverts if overflows
-    /// @param x The multiplicand
-    /// @param y The multiplier
-    /// @return z The product of x and y
-    function mul(uint256 x, uint256 y) internal pure returns (uint256 z) {
-        require(x == 0 || (z = x * y) / x == y);
+    /**
+     * @dev Returns the integer division of two unsigned integers. Reverts on
+     * division by zero. The result is rounded towards zero.
+     *
+     * Counterpart to Solidity's `/` operator. Note: this function uses a
+     * `revert` opcode (which leaves remaining gas untouched) while Solidity
+     * uses an invalid opcode to revert (consuming all remaining gas).
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
+    function div(uint256 a, uint256 b) internal pure returns (uint256) {
+        return div(a, b, "SafeMath: division by zero");
     }
 
-    /// @notice Returns x + y, reverts if overflows or underflows
-    /// @param x The augend
-    /// @param y The addend
-    /// @return z The sum of x and y
-    function add(int256 x, int256 y) internal pure returns (int256 z) {
-        require((z = x + y) >= x == (y >= 0));
-    }
+    /**
+     * @dev Returns the integer division of two unsigned integers. Reverts with custom message on
+     * division by zero. The result is rounded towards zero.
+     *
+     * Counterpart to Solidity's `/` operator. Note: this function uses a
+     * `revert` opcode (which leaves remaining gas untouched) while Solidity
+     * uses an invalid opcode to revert (consuming all remaining gas).
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
+    function div(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+        require(b > 0, errorMessage);
+        uint256 c = a / b;
+        assert(a == b * c + a % b); // There is no case in which this doesn't hold
 
-    /// @notice Returns x - y, reverts if overflows or underflows
-    /// @param x The minuend
-    /// @param y The subtrahend
-    /// @return z The difference of x and y
-    function sub(int256 x, int256 y) internal pure returns (int256 z) {
-        require((z = x - y) <= x == (y >= 0));
+        return c;
     }
 }
 
@@ -370,7 +440,7 @@ library Address {
 }
 
 library SafeERC20 {
-    using LowGasSafeMath for uint256;
+    using SafeMath for uint256;
     using Address for address;
 
     function safeTransfer(IERC20 token, address to, uint256 value) internal {
@@ -410,7 +480,7 @@ library SafeERC20 {
         uint256 value
     ) internal {
         uint256 newAllowance = token.allowance(address(this), spender)
-            .sub(value);
+            .sub(value, "SafeERC20: decreased allowance below zero");
         _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, newAllowance));
     }
 
@@ -433,70 +503,62 @@ library SafeERC20 {
     }
 }
 
-contract OwnableData {
-    address public owner;
-    address public pendingOwner;
+interface IOwnable {
+  function manager() external view returns (address);
+
+  function renounceManagement() external;
+  
+  function pushManagement( address newOwner_ ) external;
+  
+  function pullManagement() external;
 }
 
-contract Ownable is OwnableData {
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+contract Ownable is IOwnable {
 
-    /// @notice `owner` defaults to msg.sender on construction.
-    constructor() {
-        owner = msg.sender;
-        emit OwnershipTransferred(address(0), msg.sender);
+    address internal _owner;
+    address internal _newOwner;
+
+    event OwnershipPushed(address indexed previousOwner, address indexed newOwner);
+    event OwnershipPulled(address indexed previousOwner, address indexed newOwner);
+
+    constructor () {
+        _owner = msg.sender;
+        emit OwnershipPushed( address(0), _owner );
     }
 
-    /// @notice Transfers ownership to `newOwner`. Either directly or claimable by the new pending owner.
-    /// Can only be invoked by the current `owner`.
-    /// @param newOwner Address of the new owner.
-    /// @param direct True if `newOwner` should be set immediately. False if `newOwner` needs to use `claimOwnership`.
-    /// @param renounce Allows the `newOwner` to be `address(0)` if `direct` and `renounce` is True. Has no effect otherwise.
-    function transferOwnership(
-        address newOwner,
-        bool direct,
-        bool renounce
-    ) public onlyOwner {
-        if (direct) {
-            // Checks
-            require(newOwner != address(0) || renounce, "Ownable: zero address");
-
-            // Effects
-            emit OwnershipTransferred(owner, newOwner);
-            owner = newOwner;
-            pendingOwner = address(0);
-        } else {
-            // Effects
-            pendingOwner = newOwner;
-        }
+    function manager() public view override returns (address) {
+        return _owner;
     }
 
-    /// @notice Needs to be called by `pendingOwner` to claim ownership.
-    function claimOwnership() public {
-        address _pendingOwner = pendingOwner;
-
-        // Checks
-        require(msg.sender == _pendingOwner, "Ownable: caller != pending owner");
-
-        // Effects
-        emit OwnershipTransferred(owner, _pendingOwner);
-        owner = _pendingOwner;
-        pendingOwner = address(0);
-    }
-
-    /// @notice Only allows the `owner` to execute the function.
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Ownable: caller is not the owner");
+    modifier onlyManager() {
+        require( _owner == msg.sender, "Ownable: caller is not the owner" );
         _;
     }
+
+    function renounceManagement() public virtual override onlyManager() {
+        emit OwnershipPushed( _owner, address(0) );
+        _owner = address(0);
+    }
+
+    function pushManagement( address newOwner_ ) public virtual override onlyManager() {
+        require( newOwner_ != address(0), "Ownable: new owner is the zero address");
+        emit OwnershipPushed( _owner, newOwner_ );
+        _newOwner = newOwner_;
+    }
+    
+    function pullManagement() public virtual override {
+        require( msg.sender == _newOwner, "Ownable: must be new owner to pull");
+        emit OwnershipPulled( _owner, _newOwner );
+        _owner = _newOwner;
+    }
 }
 
-interface IMemo is IERC20 {
+interface IMemo {
     function rebase( uint256 ohmProfit_, uint epoch_) external returns (uint256);
 
     function circulatingSupply() external view returns (uint256);
 
-    function balanceOf(address who) external view override returns (uint256);
+    function balanceOf(address who) external view returns (uint256);
 
     function gonsForBalance( uint amount ) external view returns ( uint );
 
@@ -515,13 +577,12 @@ interface IDistributor {
 
 contract TimeStaking is Ownable {
 
-    using LowGasSafeMath for uint256;
-    using LowGasSafeMath for uint32;
+    using SafeMath for uint256;
+    using SafeMath for uint32;
     using SafeERC20 for IERC20;
-    using SafeERC20 for IMemo;
 
-    IERC20 public immutable Time;
-    IMemo public immutable Memories;
+    address public immutable Time;
+    address public immutable Memories;
 
     struct Epoch {
         uint number;
@@ -531,21 +592,13 @@ contract TimeStaking is Ownable {
     }
     Epoch public epoch;
 
-    IDistributor public distributor;
+    address public distributor;
     
+    address public locker;
     uint public totalBonus;
     
-    IWarmup public warmupContract;
+    address public warmupContract;
     uint public warmupPeriod;
-
-    event LogStake(address indexed recipient, uint256 amount);
-    event LogClaim(address indexed recipient, uint256 amount);
-    event LogForfeit(address indexed recipient, uint256 memoAmount, uint256 timeAmount);
-    event LogDepositLock(address indexed user, bool locked);
-    event LogUnstake(address indexed recipient, uint256 amount);
-    event LogRebase(uint256 distribute);
-    event LogSetContract(CONTRACTS contractType, address indexed _contract);
-    event LogWarmupPeriod(uint period);
     
     constructor ( 
         address _Time, 
@@ -555,9 +608,9 @@ contract TimeStaking is Ownable {
         uint32 _firstEpochTime
     ) {
         require( _Time != address(0) );
-        Time = IERC20(_Time);
+        Time = _Time;
         require( _Memories != address(0) );
-        Memories = IMemo(_Memories);
+        Memories = _Memories;
         
         epoch = Epoch({
             length: _epochLength,
@@ -576,54 +629,50 @@ contract TimeStaking is Ownable {
     mapping( address => Claim ) public warmupInfo;
 
     /**
-        @notice stake Time to enter warmup
+        @notice stake OHM to enter warmup
         @param _amount uint
         @return bool
      */
     function stake( uint _amount, address _recipient ) external returns ( bool ) {
         rebase();
         
-        Time.safeTransferFrom( msg.sender, address(this), _amount );
+        IERC20( Time ).safeTransferFrom( msg.sender, address(this), _amount );
 
         Claim memory info = warmupInfo[ _recipient ];
         require( !info.lock, "Deposits for account are locked" );
 
         warmupInfo[ _recipient ] = Claim ({
             deposit: info.deposit.add( _amount ),
-            gons: info.gons.add( Memories.gonsForBalance( _amount ) ),
+            gons: info.gons.add( IMemo( Memories ).gonsForBalance( _amount ) ),
             expiry: epoch.number.add( warmupPeriod ),
             lock: false
         });
         
-        Memories.safeTransfer( address(warmupContract), _amount );
-        emit LogStake(_recipient, _amount);
+        IERC20( Memories ).safeTransfer( warmupContract, _amount );
         return true;
     }
 
     /**
-        @notice retrieve MEMO from warmup
+        @notice retrieve sOHM from warmup
         @param _recipient address
      */
-    function claim ( address _recipient ) external {
+    function claim ( address _recipient ) public {
         Claim memory info = warmupInfo[ _recipient ];
         if ( epoch.number >= info.expiry && info.expiry != 0 ) {
             delete warmupInfo[ _recipient ];
-            uint256 amount = Memories.balanceForGons( info.gons );
-            warmupContract.retrieve( _recipient,  amount);
-            emit LogClaim(_recipient, amount);
+            IWarmup( warmupContract ).retrieve( _recipient, IMemo( Memories ).balanceForGons( info.gons ) );
         }
     }
 
     /**
-        @notice forfeit MEMO in warmup and retrieve Time
+        @notice forfeit sOHM in warmup and retrieve OHM
      */
     function forfeit() external {
         Claim memory info = warmupInfo[ msg.sender ];
         delete warmupInfo[ msg.sender ];
-        uint memoBalance = Memories.balanceForGons( info.gons );
-        warmupContract.retrieve( address(this),  memoBalance);
-        Time.safeTransfer( msg.sender, info.deposit);
-        emit LogForfeit(msg.sender, memoBalance, info.deposit);
+
+        IWarmup( warmupContract ).retrieve( address(this), IMemo( Memories ).balanceForGons( info.gons ) );
+        IERC20( Time ).safeTransfer( msg.sender, info.deposit );
     }
 
     /**
@@ -631,11 +680,10 @@ contract TimeStaking is Ownable {
      */
     function toggleDepositLock() external {
         warmupInfo[ msg.sender ].lock = !warmupInfo[ msg.sender ].lock;
-        emit LogDepositLock(msg.sender, warmupInfo[ msg.sender ].lock);
     }
 
     /**
-        @notice redeem MEMO for Time
+        @notice redeem sOHM for OHM
         @param _amount uint
         @param _trigger bool
      */
@@ -643,17 +691,16 @@ contract TimeStaking is Ownable {
         if ( _trigger ) {
             rebase();
         }
-        Memories.safeTransferFrom( msg.sender, address(this), _amount );
-        Time.safeTransfer( msg.sender, _amount );
-        emit LogUnstake(msg.sender, _amount);
+        IERC20( Memories ).safeTransferFrom( msg.sender, address(this), _amount );
+        IERC20( Time ).safeTransfer( msg.sender, _amount );
     }
 
     /**
-        @notice returns the MEMO index, which tracks rebase growth
+        @notice returns the sOHM index, which tracks rebase growth
         @return uint
      */
-    function index() external view returns ( uint ) {
-        return Memories.index();
+    function index() public view returns ( uint ) {
+        return IMemo( Memories ).index();
     }
 
     /**
@@ -662,57 +709,77 @@ contract TimeStaking is Ownable {
     function rebase() public {
         if( epoch.endTime <= uint32(block.timestamp) ) {
 
-            Memories.rebase( epoch.distribute, epoch.number );
+            IMemo( Memories ).rebase( epoch.distribute, epoch.number );
 
             epoch.endTime = epoch.endTime.add32( epoch.length );
             epoch.number++;
             
-            if ( address(distributor) != address(0) ) {
-                distributor.distribute();
+            if ( distributor != address(0) ) {
+                IDistributor( distributor ).distribute();
             }
 
             uint balance = contractBalance();
-            uint staked = Memories.circulatingSupply();
+            uint staked = IMemo( Memories ).circulatingSupply();
 
             if( balance <= staked ) {
                 epoch.distribute = 0;
             } else {
                 epoch.distribute = balance.sub( staked );
             }
-            emit LogRebase(epoch.distribute);
         }
     }
 
     /**
-        @notice returns contract Time holdings, including bonuses provided
+        @notice returns contract OHM holdings, including bonuses provided
         @return uint
      */
     function contractBalance() public view returns ( uint ) {
-        return Time.balanceOf( address(this) ).add( totalBonus );
+        return IERC20( Time ).balanceOf( address(this) ).add( totalBonus );
     }
 
-    enum CONTRACTS { DISTRIBUTOR, WARMUP }
+    /**
+        @notice provide bonus to locked staking contract
+        @param _amount uint
+     */
+    function giveLockBonus( uint _amount ) external {
+        require( msg.sender == locker );
+        totalBonus = totalBonus.add( _amount );
+        IERC20( Memories ).safeTransfer( locker, _amount );
+    }
+
+    /**
+        @notice reclaim bonus from locked staking contract
+        @param _amount uint
+     */
+    function returnLockBonus( uint _amount ) external {
+        require( msg.sender == locker );
+        totalBonus = totalBonus.sub( _amount );
+        IERC20( Memories ).safeTransferFrom( locker, address(this), _amount );
+    }
+
+    enum CONTRACTS { DISTRIBUTOR, WARMUP, LOCKER }
 
     /**
         @notice sets the contract address for LP staking
         @param _contract address
      */
-    function setContract( CONTRACTS _contract, address _address ) external onlyOwner {
+    function setContract( CONTRACTS _contract, address _address ) external onlyManager() {
         if( _contract == CONTRACTS.DISTRIBUTOR ) { // 0
-            distributor = IDistributor(_address);
+            distributor = _address;
         } else if ( _contract == CONTRACTS.WARMUP ) { // 1
-            require( address(warmupContract) == address( 0 ), "Warmup cannot be set more than once" );
-            warmupContract = IWarmup(_address);
+            require( warmupContract == address( 0 ), "Warmup cannot be set more than once" );
+            warmupContract = _address;
+        } else if ( _contract == CONTRACTS.LOCKER ) { // 2
+            require( locker == address(0), "Locker cannot be set more than once" );
+            locker = _address;
         }
-        emit LogSetContract(_contract, _address);
     }
     
     /**
      * @notice set warmup period in epoch's numbers for new stakers
      * @param _warmupPeriod uint
      */
-    function setWarmup( uint _warmupPeriod ) external onlyOwner {
+    function setWarmup( uint _warmupPeriod ) external onlyManager() {
         warmupPeriod = _warmupPeriod;
-        emit LogWarmupPeriod(_warmupPeriod);
     }
 }

@@ -54,18 +54,14 @@ interface VaultOwnedInterface extends ethers.utils.Interface {
 
   events: {
     "OwnershipTransferred(address,address)": EventFragment;
-    "VaultTransferred(address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "VaultTransferred"): EventFragment;
 }
 
 export type OwnershipTransferredEvent = TypedEvent<
   [string, string] & { previousOwner: string; newOwner: string }
 >;
-
-export type VaultTransferredEvent = TypedEvent<[string] & { newVault: string }>;
 
 export class VaultOwned extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -153,7 +149,7 @@ export class VaultOwned extends BaseContract {
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
-    setVault(vault_: string, overrides?: CallOverrides): Promise<void>;
+    setVault(vault_: string, overrides?: CallOverrides): Promise<boolean>;
 
     transferOwnership(
       newOwner_: string,
@@ -179,14 +175,6 @@ export class VaultOwned extends BaseContract {
       [string, string],
       { previousOwner: string; newOwner: string }
     >;
-
-    "VaultTransferred(address)"(
-      newVault?: string | null
-    ): TypedEventFilter<[string], { newVault: string }>;
-
-    VaultTransferred(
-      newVault?: string | null
-    ): TypedEventFilter<[string], { newVault: string }>;
   };
 
   estimateGas: {

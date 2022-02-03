@@ -37,16 +37,8 @@ interface StakingHelperInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "stake", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "staking", data: BytesLike): Result;
 
-  events: {
-    "LogStake(address,uint256)": EventFragment;
-  };
-
-  getEvent(nameOrSignatureOrTopic: "LogStake"): EventFragment;
+  events: {};
 }
-
-export type LogStakeEvent = TypedEvent<
-  [string, BigNumber] & { recipient: string; amount: BigNumber }
->;
 
 export class StakingHelper extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -125,23 +117,7 @@ export class StakingHelper extends BaseContract {
     staking(overrides?: CallOverrides): Promise<string>;
   };
 
-  filters: {
-    "LogStake(address,uint256)"(
-      recipient?: string | null,
-      amount?: null
-    ): TypedEventFilter<
-      [string, BigNumber],
-      { recipient: string; amount: BigNumber }
-    >;
-
-    LogStake(
-      recipient?: string | null,
-      amount?: null
-    ): TypedEventFilter<
-      [string, BigNumber],
-      { recipient: string; amount: BigNumber }
-    >;
-  };
+  filters: {};
 
   estimateGas: {
     Time(overrides?: CallOverrides): Promise<BigNumber>;

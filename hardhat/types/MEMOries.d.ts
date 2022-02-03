@@ -29,7 +29,6 @@ interface MEMOriesInterface extends ethers.utils.Interface {
     "balanceForGons(uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "circulatingSupply()": FunctionFragment;
-    "claimOwnership()": FunctionFragment;
     "decimals()": FunctionFragment;
     "decreaseAllowance(address,uint256)": FunctionFragment;
     "gonsForBalance(uint256)": FunctionFragment;
@@ -37,20 +36,21 @@ interface MEMOriesInterface extends ethers.utils.Interface {
     "index()": FunctionFragment;
     "initialize(address)": FunctionFragment;
     "initializer()": FunctionFragment;
+    "manager()": FunctionFragment;
     "name()": FunctionFragment;
     "nonces(address)": FunctionFragment;
-    "owner()": FunctionFragment;
-    "pendingOwner()": FunctionFragment;
     "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)": FunctionFragment;
+    "pullManagement()": FunctionFragment;
+    "pushManagement(address)": FunctionFragment;
     "rebase(uint256,uint256)": FunctionFragment;
     "rebases(uint256)": FunctionFragment;
+    "renounceManagement()": FunctionFragment;
     "setIndex(uint256)": FunctionFragment;
     "stakingContract()": FunctionFragment;
     "symbol()": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transfer(address,uint256)": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
-    "transferOwnership(address,bool,bool)": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -79,10 +79,6 @@ interface MEMOriesInterface extends ethers.utils.Interface {
     functionFragment: "circulatingSupply",
     values?: undefined
   ): string;
-  encodeFunctionData(
-    functionFragment: "claimOwnership",
-    values?: undefined
-  ): string;
   encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "decreaseAllowance",
@@ -102,13 +98,9 @@ interface MEMOriesInterface extends ethers.utils.Interface {
     functionFragment: "initializer",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "manager", values?: undefined): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(functionFragment: "nonces", values: [string]): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "pendingOwner",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "permit",
     values: [
@@ -122,12 +114,24 @@ interface MEMOriesInterface extends ethers.utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "pullManagement",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "pushManagement",
+    values: [string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "rebase",
     values: [BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "rebases",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "renounceManagement",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "setIndex",
@@ -150,10 +154,6 @@ interface MEMOriesInterface extends ethers.utils.Interface {
     functionFragment: "transferFrom",
     values: [string, string, BigNumberish]
   ): string;
-  encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [string, boolean, boolean]
-  ): string;
 
   decodeFunctionResult(
     functionFragment: "DOMAIN_SEPARATOR",
@@ -175,10 +175,6 @@ interface MEMOriesInterface extends ethers.utils.Interface {
     functionFragment: "circulatingSupply",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "claimOwnership",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "decreaseAllowance",
@@ -198,16 +194,24 @@ interface MEMOriesInterface extends ethers.utils.Interface {
     functionFragment: "initializer",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "manager", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "nonces", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "permit", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "pendingOwner",
+    functionFragment: "pullManagement",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "permit", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "pushManagement",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "rebase", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "rebases", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "renounceManagement",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "setIndex", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "stakingContract",
@@ -223,27 +227,23 @@ interface MEMOriesInterface extends ethers.utils.Interface {
     functionFragment: "transferFrom",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
 
   events: {
     "Approval(address,address,uint256)": EventFragment;
     "LogRebase(uint256,uint256,uint256)": EventFragment;
-    "LogSetIndex(uint256)": EventFragment;
     "LogStakingContractUpdated(address)": EventFragment;
     "LogSupply(uint256,uint256,uint256)": EventFragment;
-    "OwnershipTransferred(address,address)": EventFragment;
+    "OwnershipPulled(address,address)": EventFragment;
+    "OwnershipPushed(address,address)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "LogRebase"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "LogSetIndex"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "LogStakingContractUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "LogSupply"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OwnershipPulled"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OwnershipPushed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
 }
 
@@ -263,8 +263,6 @@ export type LogRebaseEvent = TypedEvent<
   }
 >;
 
-export type LogSetIndexEvent = TypedEvent<[BigNumber] & { index: BigNumber }>;
-
 export type LogStakingContractUpdatedEvent = TypedEvent<
   [string] & { stakingContract: string }
 >;
@@ -277,7 +275,11 @@ export type LogSupplyEvent = TypedEvent<
   }
 >;
 
-export type OwnershipTransferredEvent = TypedEvent<
+export type OwnershipPulledEvent = TypedEvent<
+  [string, string] & { previousOwner: string; newOwner: string }
+>;
+
+export type OwnershipPushedEvent = TypedEvent<
   [string, string] & { previousOwner: string; newOwner: string }
 >;
 
@@ -356,10 +358,6 @@ export class MEMOries extends BaseContract {
 
     circulatingSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    claimOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     decimals(overrides?: CallOverrides): Promise<[number]>;
 
     decreaseAllowance(
@@ -388,13 +386,11 @@ export class MEMOries extends BaseContract {
 
     initializer(overrides?: CallOverrides): Promise<[string]>;
 
+    manager(overrides?: CallOverrides): Promise<[string]>;
+
     name(overrides?: CallOverrides): Promise<[string]>;
 
     nonces(owner: string, overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    owner(overrides?: CallOverrides): Promise<[string]>;
-
-    pendingOwner(overrides?: CallOverrides): Promise<[string]>;
 
     permit(
       owner: string,
@@ -404,6 +400,15 @@ export class MEMOries extends BaseContract {
       v: BigNumberish,
       r: BytesLike,
       s: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    pullManagement(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    pushManagement(
+      newOwner_: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -436,6 +441,10 @@ export class MEMOries extends BaseContract {
       }
     >;
 
+    renounceManagement(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     setIndex(
       _INDEX: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -457,13 +466,6 @@ export class MEMOries extends BaseContract {
       from: string,
       to: string,
       value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    transferOwnership(
-      newOwner: string,
-      direct: boolean,
-      renounce: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
@@ -495,10 +497,6 @@ export class MEMOries extends BaseContract {
 
   circulatingSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
-  claimOwnership(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   decimals(overrides?: CallOverrides): Promise<number>;
 
   decreaseAllowance(
@@ -527,13 +525,11 @@ export class MEMOries extends BaseContract {
 
   initializer(overrides?: CallOverrides): Promise<string>;
 
+  manager(overrides?: CallOverrides): Promise<string>;
+
   name(overrides?: CallOverrides): Promise<string>;
 
   nonces(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-  owner(overrides?: CallOverrides): Promise<string>;
-
-  pendingOwner(overrides?: CallOverrides): Promise<string>;
 
   permit(
     owner: string,
@@ -543,6 +539,15 @@ export class MEMOries extends BaseContract {
     v: BigNumberish,
     r: BytesLike,
     s: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  pullManagement(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  pushManagement(
+    newOwner_: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -575,6 +580,10 @@ export class MEMOries extends BaseContract {
     }
   >;
 
+  renounceManagement(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   setIndex(
     _INDEX: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -596,13 +605,6 @@ export class MEMOries extends BaseContract {
     from: string,
     to: string,
     value: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  transferOwnership(
-    newOwner: string,
-    direct: boolean,
-    renounce: boolean,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -634,8 +636,6 @@ export class MEMOries extends BaseContract {
 
     circulatingSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
-    claimOwnership(overrides?: CallOverrides): Promise<void>;
-
     decimals(overrides?: CallOverrides): Promise<number>;
 
     decreaseAllowance(
@@ -664,13 +664,11 @@ export class MEMOries extends BaseContract {
 
     initializer(overrides?: CallOverrides): Promise<string>;
 
+    manager(overrides?: CallOverrides): Promise<string>;
+
     name(overrides?: CallOverrides): Promise<string>;
 
     nonces(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    owner(overrides?: CallOverrides): Promise<string>;
-
-    pendingOwner(overrides?: CallOverrides): Promise<string>;
 
     permit(
       owner: string,
@@ -682,6 +680,10 @@ export class MEMOries extends BaseContract {
       s: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    pullManagement(overrides?: CallOverrides): Promise<void>;
+
+    pushManagement(newOwner_: string, overrides?: CallOverrides): Promise<void>;
 
     rebase(
       profit_: BigNumberish,
@@ -712,7 +714,9 @@ export class MEMOries extends BaseContract {
       }
     >;
 
-    setIndex(_INDEX: BigNumberish, overrides?: CallOverrides): Promise<void>;
+    renounceManagement(overrides?: CallOverrides): Promise<void>;
+
+    setIndex(_INDEX: BigNumberish, overrides?: CallOverrides): Promise<boolean>;
 
     stakingContract(overrides?: CallOverrides): Promise<string>;
 
@@ -732,13 +736,6 @@ export class MEMOries extends BaseContract {
       value: BigNumberish,
       overrides?: CallOverrides
     ): Promise<boolean>;
-
-    transferOwnership(
-      newOwner: string,
-      direct: boolean,
-      renounce: boolean,
-      overrides?: CallOverrides
-    ): Promise<void>;
   };
 
   filters: {
@@ -778,14 +775,6 @@ export class MEMOries extends BaseContract {
       { epoch: BigNumber; rebase: BigNumber; index: BigNumber }
     >;
 
-    "LogSetIndex(uint256)"(
-      index?: BigNumberish | null
-    ): TypedEventFilter<[BigNumber], { index: BigNumber }>;
-
-    LogSetIndex(
-      index?: BigNumberish | null
-    ): TypedEventFilter<[BigNumber], { index: BigNumber }>;
-
     "LogStakingContractUpdated(address)"(
       stakingContract?: null
     ): TypedEventFilter<[string], { stakingContract: string }>;
@@ -812,7 +801,7 @@ export class MEMOries extends BaseContract {
       { epoch: BigNumber; timestamp: BigNumber; totalSupply: BigNumber }
     >;
 
-    "OwnershipTransferred(address,address)"(
+    "OwnershipPulled(address,address)"(
       previousOwner?: string | null,
       newOwner?: string | null
     ): TypedEventFilter<
@@ -820,7 +809,23 @@ export class MEMOries extends BaseContract {
       { previousOwner: string; newOwner: string }
     >;
 
-    OwnershipTransferred(
+    OwnershipPulled(
+      previousOwner?: string | null,
+      newOwner?: string | null
+    ): TypedEventFilter<
+      [string, string],
+      { previousOwner: string; newOwner: string }
+    >;
+
+    "OwnershipPushed(address,address)"(
+      previousOwner?: string | null,
+      newOwner?: string | null
+    ): TypedEventFilter<
+      [string, string],
+      { previousOwner: string; newOwner: string }
+    >;
+
+    OwnershipPushed(
       previousOwner?: string | null,
       newOwner?: string | null
     ): TypedEventFilter<
@@ -875,10 +880,6 @@ export class MEMOries extends BaseContract {
 
     circulatingSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
-    claimOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     decimals(overrides?: CallOverrides): Promise<BigNumber>;
 
     decreaseAllowance(
@@ -907,13 +908,11 @@ export class MEMOries extends BaseContract {
 
     initializer(overrides?: CallOverrides): Promise<BigNumber>;
 
+    manager(overrides?: CallOverrides): Promise<BigNumber>;
+
     name(overrides?: CallOverrides): Promise<BigNumber>;
 
     nonces(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    owner(overrides?: CallOverrides): Promise<BigNumber>;
-
-    pendingOwner(overrides?: CallOverrides): Promise<BigNumber>;
 
     permit(
       owner: string,
@@ -926,6 +925,15 @@ export class MEMOries extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    pullManagement(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    pushManagement(
+      newOwner_: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     rebase(
       profit_: BigNumberish,
       epoch_: BigNumberish,
@@ -933,6 +941,10 @@ export class MEMOries extends BaseContract {
     ): Promise<BigNumber>;
 
     rebases(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
+
+    renounceManagement(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     setIndex(
       _INDEX: BigNumberish,
@@ -955,13 +967,6 @@ export class MEMOries extends BaseContract {
       from: string,
       to: string,
       value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    transferOwnership(
-      newOwner: string,
-      direct: boolean,
-      renounce: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
@@ -997,10 +1002,6 @@ export class MEMOries extends BaseContract {
 
     circulatingSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    claimOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     decreaseAllowance(
@@ -1029,16 +1030,14 @@ export class MEMOries extends BaseContract {
 
     initializer(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    manager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     nonces(
       owner: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
-
-    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    pendingOwner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     permit(
       owner: string,
@@ -1051,6 +1050,15 @@ export class MEMOries extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    pullManagement(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    pushManagement(
+      newOwner_: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     rebase(
       profit_: BigNumberish,
       epoch_: BigNumberish,
@@ -1060,6 +1068,10 @@ export class MEMOries extends BaseContract {
     rebases(
       arg0: BigNumberish,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    renounceManagement(
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     setIndex(
@@ -1083,13 +1095,6 @@ export class MEMOries extends BaseContract {
       from: string,
       to: string,
       value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    transferOwnership(
-      newOwner: string,
-      direct: boolean,
-      renounce: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };

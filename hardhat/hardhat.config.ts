@@ -121,6 +121,18 @@ const config: HardhatUserConfig = {
                     },
                 },
             },
+            {
+                version: "0.6.12",
+                settings: {
+                    metadata: {
+                        bytecodeHash: "none",
+                    },
+                    optimizer: {
+                        enabled: true,
+                        runs: 800,
+                    },
+                },
+            },
         ],
         settings: {
             outputSelection: {

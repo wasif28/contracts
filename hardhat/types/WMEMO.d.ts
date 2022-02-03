@@ -124,14 +124,10 @@ interface WMEMOInterface extends ethers.utils.Interface {
   events: {
     "Approval(address,address,uint256)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
-    "UnWrap(address,uint256,uint256)": EventFragment;
-    "Wrap(address,uint256,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "UnWrap"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Wrap"): EventFragment;
 }
 
 export type ApprovalEvent = TypedEvent<
@@ -144,22 +140,6 @@ export type ApprovalEvent = TypedEvent<
 
 export type TransferEvent = TypedEvent<
   [string, string, BigNumber] & { from: string; to: string; value: BigNumber }
->;
-
-export type UnWrapEvent = TypedEvent<
-  [string, BigNumber, BigNumber] & {
-    recipient: string;
-    amountWmemo: BigNumber;
-    amountMemo: BigNumber;
-  }
->;
-
-export type WrapEvent = TypedEvent<
-  [string, BigNumber, BigNumber] & {
-    recipient: string;
-    amountMemo: BigNumber;
-    amountWmemo: BigNumber;
-  }
 >;
 
 export class WMEMO extends BaseContract {
@@ -448,42 +428,6 @@ export class WMEMO extends BaseContract {
     ): TypedEventFilter<
       [string, string, BigNumber],
       { from: string; to: string; value: BigNumber }
-    >;
-
-    "UnWrap(address,uint256,uint256)"(
-      recipient?: string | null,
-      amountWmemo?: null,
-      amountMemo?: null
-    ): TypedEventFilter<
-      [string, BigNumber, BigNumber],
-      { recipient: string; amountWmemo: BigNumber; amountMemo: BigNumber }
-    >;
-
-    UnWrap(
-      recipient?: string | null,
-      amountWmemo?: null,
-      amountMemo?: null
-    ): TypedEventFilter<
-      [string, BigNumber, BigNumber],
-      { recipient: string; amountWmemo: BigNumber; amountMemo: BigNumber }
-    >;
-
-    "Wrap(address,uint256,uint256)"(
-      recipient?: string | null,
-      amountMemo?: null,
-      amountWmemo?: null
-    ): TypedEventFilter<
-      [string, BigNumber, BigNumber],
-      { recipient: string; amountMemo: BigNumber; amountWmemo: BigNumber }
-    >;
-
-    Wrap(
-      recipient?: string | null,
-      amountMemo?: null,
-      amountWmemo?: null
-    ): TypedEventFilter<
-      [string, BigNumber, BigNumber],
-      { recipient: string; amountMemo: BigNumber; amountWmemo: BigNumber }
     >;
   };
 

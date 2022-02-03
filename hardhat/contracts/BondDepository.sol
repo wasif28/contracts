@@ -1,6 +1,9 @@
+/**
+ *Submitted for verification at snowtrace.io on 2021-11-13
+*/
+
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity 0.7.5;
-pragma abicoder v2;
 
 interface IOwnable {
   function policy() external view returns (address);
@@ -12,111 +15,118 @@ interface IOwnable {
   function pullManagement() external;
 }
 
-contract OwnableData {
-    address public owner;
-    address public pendingOwner;
-}
+contract Ownable is IOwnable {
 
-contract Ownable is OwnableData {
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+    address internal _owner;
+    address internal _newOwner;
 
-    /// @notice `owner` defaults to msg.sender on construction.
-    constructor() {
-        owner = msg.sender;
-        emit OwnershipTransferred(address(0), msg.sender);
+    event OwnershipPushed(address indexed previousOwner, address indexed newOwner);
+    event OwnershipPulled(address indexed previousOwner, address indexed newOwner);
+
+    constructor () {
+        _owner = msg.sender;
+        emit OwnershipPushed( address(0), _owner );
     }
 
-    /// @notice Transfers ownership to `newOwner`. Either directly or claimable by the new pending owner.
-    /// Can only be invoked by the current `owner`.
-    /// @param newOwner Address of the new owner.
-    /// @param direct True if `newOwner` should be set immediately. False if `newOwner` needs to use `claimOwnership`.
-    /// @param renounce Allows the `newOwner` to be `address(0)` if `direct` and `renounce` is True. Has no effect otherwise.
-    function transferOwnership(
-        address newOwner,
-        bool direct,
-        bool renounce
-    ) public onlyOwner {
-        if (direct) {
-            // Checks
-            require(newOwner != address(0) || renounce, "Ownable: zero address");
-
-            // Effects
-            emit OwnershipTransferred(owner, newOwner);
-            owner = newOwner;
-            pendingOwner = address(0);
-        } else {
-            // Effects
-            pendingOwner = newOwner;
-        }
+    function policy() public view override returns (address) {
+        return _owner;
     }
 
-    /// @notice Needs to be called by `pendingOwner` to claim ownership.
-    function claimOwnership() public {
-        address _pendingOwner = pendingOwner;
-
-        // Checks
-        require(msg.sender == _pendingOwner, "Ownable: caller != pending owner");
-
-        // Effects
-        emit OwnershipTransferred(owner, _pendingOwner);
-        owner = _pendingOwner;
-        pendingOwner = address(0);
-    }
-
-    /// @notice Only allows the `owner` to execute the function.
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Ownable: caller is not the owner");
+    modifier onlyPolicy() {
+        require( _owner == msg.sender, "Ownable: caller is not the owner" );
         _;
     }
+
+    function renounceManagement() public virtual override onlyPolicy() {
+        emit OwnershipPushed( _owner, address(0) );
+        _owner = address(0);
+    }
+
+    function pushManagement( address newOwner_ ) public virtual override onlyPolicy() {
+        require( newOwner_ != address(0), "Ownable: new owner is the zero address");
+        emit OwnershipPushed( _owner, newOwner_ );
+        _newOwner = newOwner_;
+    }
+    
+    function pullManagement() public virtual override {
+        require( msg.sender == _newOwner, "Ownable: must be new owner to pull");
+        emit OwnershipPulled( _owner, _newOwner );
+        _owner = _newOwner;
+    }
 }
 
-library LowGasSafeMath {
-    /// @notice Returns x + y, reverts if sum overflows uint256
-    /// @param x The augend
-    /// @param y The addend
-    /// @return z The sum of x and y
-    function add(uint256 x, uint256 y) internal pure returns (uint256 z) {
-        require((z = x + y) >= x);
+library SafeMath {
+
+    function add(uint256 a, uint256 b) internal pure returns (uint256) {
+        uint256 c = a + b;
+        require(c >= a, "SafeMath: addition overflow");
+
+        return c;
     }
 
-    function add32(uint32 x, uint32 y) internal pure returns (uint32 z) {
-        require((z = x + y) >= x);
+    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+        return sub(a, b, "SafeMath: subtraction overflow");
     }
 
-    /// @notice Returns x - y, reverts if underflows
-    /// @param x The minuend
-    /// @param y The subtrahend
-    /// @return z The difference of x and y
-    function sub(uint256 x, uint256 y) internal pure returns (uint256 z) {
-        require((z = x - y) <= x);
+    function sub(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+        require(b <= a, errorMessage);
+        uint256 c = a - b;
+
+        return c;
     }
 
-    function sub32(uint32 x, uint32 y) internal pure returns (uint32 z) {
-        require((z = x - y) <= x);
+    function sub32(uint32 a, uint32 b) internal pure returns (uint32) {
+        return sub32(a, b, "SafeMath: subtraction overflow");
     }
 
-    /// @notice Returns x * y, reverts if overflows
-    /// @param x The multiplicand
-    /// @param y The multiplier
-    /// @return z The product of x and y
-    function mul(uint256 x, uint256 y) internal pure returns (uint256 z) {
-        require(x == 0 || (z = x * y) / x == y);
+    function sub32(uint32 a, uint32 b, string memory errorMessage) internal pure returns (uint32) {
+        require(b <= a, errorMessage);
+        uint32 c = a - b;
+
+        return c;
     }
 
-    /// @notice Returns x + y, reverts if overflows or underflows
-    /// @param x The augend
-    /// @param y The addend
-    /// @return z The sum of x and y
-    function add(int256 x, int256 y) internal pure returns (int256 z) {
-        require((z = x + y) >= x == (y >= 0));
+    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+        if (a == 0) {
+            return 0;
+        }
+
+        uint256 c = a * b;
+        require(c / a == b, "SafeMath: multiplication overflow");
+
+        return c;
     }
 
-    /// @notice Returns x - y, reverts if overflows or underflows
-    /// @param x The minuend
-    /// @param y The subtrahend
-    /// @return z The difference of x and y
-    function sub(int256 x, int256 y) internal pure returns (int256 z) {
-        require((z = x - y) <= x == (y >= 0));
+    function div(uint256 a, uint256 b) internal pure returns (uint256) {
+        return div(a, b, "SafeMath: division by zero");
+    }
+
+    function div(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+        require(b > 0, errorMessage);
+        uint256 c = a / b;
+        return c;
+    }
+
+    function mod(uint256 a, uint256 b) internal pure returns (uint256) {
+        return mod(a, b, "SafeMath: modulo by zero");
+    }
+
+    function mod(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+        require(b != 0, errorMessage);
+        return a % b;
+    }
+
+    function sqrrt(uint256 a) internal pure returns (uint c) {
+        if (a > 3) {
+            c = a;
+            uint b = add( div( a, 2), 1 );
+            while (b < c) {
+                c = b;
+                b = div( add( div( a, b ), b), 2 );
+            }
+        } else if (a != 0) {
+            c = 1;
+        }
     }
 }
 
@@ -265,6 +275,7 @@ library Address {
 
     }
 }
+
 interface IERC20 {
     function decimals() external view returns (uint8);
 
@@ -285,8 +296,216 @@ interface IERC20 {
     event Approval(address indexed owner, address indexed spender, uint256 value);
 }
 
+abstract contract ERC20 is IERC20 {
+
+    using SafeMath for uint256;
+
+    // TODO comment actual hash value.
+    bytes32 constant private ERC20TOKEN_ERC1820_INTERFACE_ID = keccak256( "ERC20Token" );
+    
+    mapping (address => uint256) internal _balances;
+
+    mapping (address => mapping (address => uint256)) internal _allowances;
+
+    uint256 internal _totalSupply;
+
+    string internal _name;
+    
+    string internal _symbol;
+    
+    uint8 internal _decimals;
+
+    constructor (string memory name_, string memory symbol_, uint8 decimals_) {
+        _name = name_;
+        _symbol = symbol_;
+        _decimals = decimals_;
+    }
+
+    function name() public view returns (string memory) {
+        return _name;
+    }
+
+    function symbol() public view returns (string memory) {
+        return _symbol;
+    }
+
+    function decimals() public view override returns (uint8) {
+        return _decimals;
+    }
+
+    function totalSupply() public view override returns (uint256) {
+        return _totalSupply;
+    }
+
+    function balanceOf(address account) public view virtual override returns (uint256) {
+        return _balances[account];
+    }
+
+    function transfer(address recipient, uint256 amount) public virtual override returns (bool) {
+        _transfer(msg.sender, recipient, amount);
+        return true;
+    }
+
+    function allowance(address owner, address spender) public view virtual override returns (uint256) {
+        return _allowances[owner][spender];
+    }
+
+    function approve(address spender, uint256 amount) public virtual override returns (bool) {
+        _approve(msg.sender, spender, amount);
+        return true;
+    }
+
+    function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
+        _transfer(sender, recipient, amount);
+        _approve(sender, msg.sender, _allowances[sender][msg.sender]
+            .sub(amount, "ERC20: transfer amount exceeds allowance"));
+        return true;
+    }
+
+    function increaseAllowance(address spender, uint256 addedValue) public virtual returns (bool) {
+        _approve(msg.sender, spender, _allowances[msg.sender][spender].add(addedValue));
+        return true;
+    }
+
+    function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {
+        _approve(msg.sender, spender, _allowances[msg.sender][spender]
+            .sub(subtractedValue, "ERC20: decreased allowance below zero"));
+        return true;
+    }
+
+    function _transfer(address sender, address recipient, uint256 amount) internal virtual {
+        require(sender != address(0), "ERC20: transfer from the zero address");
+        require(recipient != address(0), "ERC20: transfer to the zero address");
+
+        _beforeTokenTransfer(sender, recipient, amount);
+
+        _balances[sender] = _balances[sender].sub(amount, "ERC20: transfer amount exceeds balance");
+        _balances[recipient] = _balances[recipient].add(amount);
+        emit Transfer(sender, recipient, amount);
+    }
+
+    function _mint(address account_, uint256 ammount_) internal virtual {
+        require(account_ != address(0), "ERC20: mint to the zero address");
+        _beforeTokenTransfer(address( this ), account_, ammount_);
+        _totalSupply = _totalSupply.add(ammount_);
+        _balances[account_] = _balances[account_].add(ammount_);
+        emit Transfer(address( this ), account_, ammount_);
+    }
+
+    function _burn(address account, uint256 amount) internal virtual {
+        require(account != address(0), "ERC20: burn from the zero address");
+
+        _beforeTokenTransfer(account, address(0), amount);
+
+        _balances[account] = _balances[account].sub(amount, "ERC20: burn amount exceeds balance");
+        _totalSupply = _totalSupply.sub(amount);
+        emit Transfer(account, address(0), amount);
+    }
+
+    function _approve(address owner, address spender, uint256 amount) internal virtual {
+        require(owner != address(0), "ERC20: approve from the zero address");
+        require(spender != address(0), "ERC20: approve to the zero address");
+
+        _allowances[owner][spender] = amount;
+        emit Approval(owner, spender, amount);
+    }
+
+  function _beforeTokenTransfer( address from_, address to_, uint256 amount_ ) internal virtual { }
+}
+
+interface IERC2612Permit {
+
+    function permit(
+        address owner,
+        address spender,
+        uint256 amount,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external;
+
+    function nonces(address owner) external view returns (uint256);
+}
+
+library Counters {
+    using SafeMath for uint256;
+
+    struct Counter {
+
+        uint256 _value; // default: 0
+    }
+
+    function current(Counter storage counter) internal view returns (uint256) {
+        return counter._value;
+    }
+
+    function increment(Counter storage counter) internal {
+        counter._value += 1;
+    }
+
+    function decrement(Counter storage counter) internal {
+        counter._value = counter._value.sub(1);
+    }
+}
+
+abstract contract ERC20Permit is ERC20, IERC2612Permit {
+    using Counters for Counters.Counter;
+
+    mapping(address => Counters.Counter) private _nonces;
+
+    // keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
+    bytes32 public constant PERMIT_TYPEHASH = 0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9;
+
+    bytes32 public DOMAIN_SEPARATOR;
+
+    constructor() {
+        uint256 chainID;
+        assembly {
+            chainID := chainid()
+        }
+
+        DOMAIN_SEPARATOR = keccak256(
+            abi.encode(
+                keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
+                keccak256(bytes(name())),
+                keccak256(bytes("1")), // Version
+                chainID,
+                address(this)
+            )
+        );
+    }
+
+    function permit(
+        address owner,
+        address spender,
+        uint256 amount,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) public virtual override {
+        require(block.timestamp <= deadline, "Permit: expired deadline");
+
+        bytes32 hashStruct =
+            keccak256(abi.encode(PERMIT_TYPEHASH, owner, spender, amount, _nonces[owner].current(), deadline));
+
+        bytes32 _hash = keccak256(abi.encodePacked(uint16(0x1901), DOMAIN_SEPARATOR, hashStruct));
+
+        address signer = ecrecover(_hash, v, r, s);
+        require(signer != address(0) && signer == owner, "ZeroSwapPermit: Invalid signature");
+
+        _nonces[owner].increment();
+        _approve(owner, spender, amount);
+    }
+
+    function nonces(address owner) public view override returns (uint256) {
+        return _nonces[owner].current();
+    }
+}
+
 library SafeERC20 {
-    using LowGasSafeMath for uint256;
+    using SafeMath for uint256;
     using Address for address;
 
     function safeTransfer(IERC20 token, address to, uint256 value) internal {
@@ -312,7 +531,7 @@ library SafeERC20 {
 
     function safeDecreaseAllowance(IERC20 token, address spender, uint256 value) internal {
         uint256 newAllowance = token.allowance(address(this), spender)
-            .sub(value);
+            .sub(value, "SafeERC20: decreased allowance below zero");
         _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, newAllowance));
     }
 
@@ -431,8 +650,8 @@ contract TimeBondDepository is Ownable {
 
     using FixedPoint for *;
     using SafeERC20 for IERC20;
-    using LowGasSafeMath for uint;
-    using LowGasSafeMath for uint32;
+    using SafeMath for uint;
+    using SafeMath for uint32;
 
 
 
@@ -443,26 +662,22 @@ contract TimeBondDepository is Ownable {
     event BondRedeemed( address indexed recipient, uint payout, uint remaining );
     event BondPriceChanged( uint indexed priceInUSD, uint indexed internalPrice, uint indexed debtRatio );
     event ControlVariableAdjustment( uint initialBCV, uint newBCV, uint adjustment, bool addition );
-    event InitTerms( Terms terms);
-    event LogSetTerms(PARAMETER param, uint value);
-    event LogSetAdjustment( Adjust adjust);
-    event LogSetStaking( address indexed stakingContract, bool isHelper);
-    event LogRecoverLostToken( address indexed tokenToRecover, uint amount);
+
 
 
 
     /* ======== STATE VARIABLES ======== */
 
-    IERC20 public immutable Time; // token given as payment for bond
-    IERC20 public immutable principle; // token used to create bond
-    ITreasury public immutable treasury; // mints Time when receives principle
+    address public immutable Time; // token given as payment for bond
+    address public immutable principle; // token used to create bond
+    address public immutable treasury; // mints OHM when receives principle
     address public immutable DAO; // receives profit share from bond
 
     bool public immutable isLiquidityBond; // LP and Reserve bonds are treated slightly different
-    IBondCalculator public immutable bondCalculator; // calculates value of LP tokens
+    address public immutable bondCalculator; // calculates value of LP tokens
 
-    IStaking public staking; // to auto-stake payout
-    IStakingHelper public stakingHelper; // to stake and claim if no staking warmup
+    address public staking; // to auto-stake payout
+    address public stakingHelper; // to stake and claim if no staking warmup
     bool public useHelper;
 
     Terms public terms; // stores terms for new bonds
@@ -472,8 +687,6 @@ contract TimeBondDepository is Ownable {
 
     uint public totalDebt; // total value of outstanding bonds; used for pricing
     uint32 public lastDecay; // reference time for debt decay
-
-    mapping (address => bool) public allowedZappers;
 
 
 
@@ -492,7 +705,7 @@ contract TimeBondDepository is Ownable {
 
     // Info for bond holder
     struct Bond {
-        uint payout; // Time remaining to be paid
+        uint payout; // OHM remaining to be paid
         uint pricePaid; // In DAI, for front end viewing
         uint32 lastTime; // Last interaction
         uint32 vesting; // Seconds left to vest
@@ -520,15 +733,15 @@ contract TimeBondDepository is Ownable {
         address _bondCalculator
     ) {
         require( _Time != address(0) );
-        Time = IERC20(_Time);
+        Time = _Time;
         require( _principle != address(0) );
-        principle = IERC20(_principle);
+        principle = _principle;
         require( _treasury != address(0) );
-        treasury = ITreasury(_treasury);
+        treasury = _treasury;
         require( _DAO != address(0) );
         DAO = _DAO;
         // bondCalculator should be address(0) if not LP bond
-        bondCalculator = IBondCalculator(_bondCalculator);
+        bondCalculator = _bondCalculator;
         isLiquidityBond = ( _bondCalculator != address(0) );
     }
 
@@ -540,6 +753,7 @@ contract TimeBondDepository is Ownable {
      *  @param _maxPayout uint
      *  @param _fee uint
      *  @param _maxDebt uint
+     *  @param _initialDebt uint
      */
     function initializeBondTerms( 
         uint _controlVariable, 
@@ -547,13 +761,10 @@ contract TimeBondDepository is Ownable {
         uint _maxPayout,
         uint _fee,
         uint _maxDebt,
+        uint _initialDebt,
         uint32 _vestingTerm
-    ) external onlyOwner() {
+    ) external onlyPolicy() {
         require( terms.controlVariable == 0, "Bonds must be initialized from 0" );
-        require( _controlVariable >= 40, "Can lock adjustment" );
-        require( _maxPayout <= 1000, "Payout cannot be above 1 percent" );
-        require( _vestingTerm >= 129600, "Vesting must be longer than 36 hours" );
-        require( _fee <= 10000, "DAO fee cannot exceed payout" );
         terms = Terms ({
             controlVariable: _controlVariable,
             minimumPrice: _minimumPrice,
@@ -562,8 +773,8 @@ contract TimeBondDepository is Ownable {
             maxDebt: _maxDebt,
             vestingTerm: _vestingTerm
         });
+        totalDebt = _initialDebt;
         lastDecay = uint32(block.timestamp);
-        emit InitTerms(terms);
     }
 
 
@@ -577,7 +788,7 @@ contract TimeBondDepository is Ownable {
      *  @param _parameter PARAMETER
      *  @param _input uint
      */
-    function setBondTerms ( PARAMETER _parameter, uint _input ) external onlyOwner() {
+    function setBondTerms ( PARAMETER _parameter, uint _input ) external onlyPolicy() {
         if ( _parameter == PARAMETER.VESTING ) { // 0
             require( _input >= 129600, "Vesting must be longer than 36 hours" );
             terms.vestingTerm = uint32(_input);
@@ -592,7 +803,6 @@ contract TimeBondDepository is Ownable {
         } else if ( _parameter == PARAMETER.MINPRICE ) { // 4
             terms.minimumPrice = _input;
         }
-        emit LogSetTerms(_parameter, _input);
     }
 
     /**
@@ -607,9 +817,9 @@ contract TimeBondDepository is Ownable {
         uint _increment, 
         uint _target,
         uint32 _buffer 
-    ) external onlyOwner() {
-        require( _increment <= terms.controlVariable.mul( 25 ) / 1000 , "Increment too large" );
-        require(_target >= 40, "Next Adjustment could be locked");
+    ) external onlyPolicy() {
+        require( _increment <= terms.controlVariable.mul( 25 ).div( 1000 ), "Increment too large" );
+
         adjustment = Adjust({
             add: _addition,
             rate: _increment,
@@ -617,7 +827,6 @@ contract TimeBondDepository is Ownable {
             buffer: _buffer,
             lastTime: uint32(block.timestamp)
         });
-        emit LogSetAdjustment(adjustment);
     }
 
     /**
@@ -625,27 +834,15 @@ contract TimeBondDepository is Ownable {
      *  @param _staking address
      *  @param _helper bool
      */
-    function setStaking( address _staking, bool _helper ) external onlyOwner() {
-        require( _staking != address(0), "IA" );
+    function setStaking( address _staking, bool _helper ) external onlyPolicy() {
+        require( _staking != address(0) );
         if ( _helper ) {
             useHelper = true;
-            stakingHelper = IStakingHelper(_staking);
+            stakingHelper = _staking;
         } else {
             useHelper = false;
-            staking = IStaking(_staking);
+            staking = _staking;
         }
-        emit LogSetStaking(_staking, _helper);
-    }
-
-    function allowZapper(address zapper) external onlyOwner {
-        require(zapper != address(0), "ZNA");
-        
-        allowedZappers[zapper] = true;
-    }
-
-    function removeZapper(address zapper) external onlyOwner {
-       
-        allowedZappers[zapper] = false;
     }
 
 
@@ -666,39 +863,38 @@ contract TimeBondDepository is Ownable {
         address _depositor
     ) external returns ( uint ) {
         require( _depositor != address(0), "Invalid address" );
-        require(msg.sender == _depositor || allowedZappers[msg.sender], "LFNA");
+
         decayDebt();
-        
+        require( totalDebt <= terms.maxDebt, "Max capacity reached" );
         
         uint priceInUSD = bondPriceInUSD(); // Stored in bond info
         uint nativePrice = _bondPrice();
 
         require( _maxPrice >= nativePrice, "Slippage limit: more than max price" ); // slippage protection
 
-        uint value = treasury.valueOf( address(principle), _amount );
+        uint value = ITreasury( treasury ).valueOf( principle, _amount );
         uint payout = payoutFor( value ); // payout to bonder is computed
-        require( totalDebt.add(value) <= terms.maxDebt, "Max capacity reached" );
-        require( payout >= 10000000, "Bond too small" ); // must be > 0.01 Time ( underflow protection )
+
+        require( payout >= 10000000, "Bond too small" ); // must be > 0.01 OHM ( underflow protection )
         require( payout <= maxPayout(), "Bond too large"); // size protection because there is no slippage
 
         // profits are calculated
-        uint fee = payout.mul( terms.fee )/ 10000 ;
+        uint fee = payout.mul( terms.fee ).div( 10000 );
         uint profit = value.sub( payout ).sub( fee );
 
-        uint balanceBefore = Time.balanceOf(address(this));
         /**
             principle is transferred in
             approved and
-            deposited into the treasury, returning (_amount - profit) Time
+            deposited into the treasury, returning (_amount - profit) OHM
          */
-        principle.safeTransferFrom( msg.sender, address(this), _amount );
-        principle.approve( address( treasury ), _amount );
-        treasury.deposit( _amount, address(principle), profit );
+        IERC20( principle ).safeTransferFrom( msg.sender, address(this), _amount );
+        IERC20( principle ).approve( address( treasury ), _amount );
+        ITreasury( treasury ).deposit( _amount, principle, profit );
         
         if ( fee != 0 ) { // fee is transferred to dao 
-            Time.safeTransfer( DAO, fee ); 
+            IERC20( Time ).safeTransfer( DAO, fee ); 
         }
-        require(balanceBefore.add(profit) == Time.balanceOf(address(this)), "Not enough Time to cover profit");
+        
         // total debt is increased
         totalDebt = totalDebt.add( value ); 
                 
@@ -724,11 +920,10 @@ contract TimeBondDepository is Ownable {
      *  @param _stake bool
      *  @return uint
      */ 
-    function redeem( address _recipient, bool _stake ) external returns ( uint ) {
-        require(msg.sender == _recipient, "NA");     
+    function redeem( address _recipient, bool _stake ) external returns ( uint ) {        
         Bond memory info = bondInfo[ _recipient ];
         // (seconds since last interaction / vesting term remaining)
-        uint percentVested = percentVestedFor( _recipient );
+        uint percentVested = percentVestedFor( _recipient ); 
 
         if ( percentVested >= 10000 ) { // if fully vested
             delete bondInfo[ _recipient ]; // delete user info
@@ -737,7 +932,7 @@ contract TimeBondDepository is Ownable {
 
         } else { // if unfinished
             // calculate payout vested
-            uint payout = info.payout.mul( percentVested ) / 10000 ;
+            uint payout = info.payout.mul( percentVested ).div( 10000 );
             // store updated deposit info
             bondInfo[ _recipient ] = Bond({
                 payout: info.payout.sub( payout ),
@@ -764,14 +959,14 @@ contract TimeBondDepository is Ownable {
      */
     function stakeOrSend( address _recipient, bool _stake, uint _amount ) internal returns ( uint ) {
         if ( !_stake ) { // if user does not want to stake
-            Time.transfer( _recipient, _amount ); // send payout
+            IERC20( Time ).transfer( _recipient, _amount ); // send payout
         } else { // if user wants to stake
             if ( useHelper ) { // use if staking warmup is 0
-                Time.approve( address(stakingHelper), _amount );
-                stakingHelper.stake( _amount, _recipient );
+                IERC20( Time ).approve( stakingHelper, _amount );
+                IStakingHelper( stakingHelper ).stake( _amount, _recipient );
             } else {
-                Time.approve( address(staking), _amount );
-                staking.stake( _amount, _recipient );
+                IERC20( Time ).approve( staking, _amount );
+                IStaking( staking ).stake( _amount, _recipient );
             }
         }
         return _amount;
@@ -781,26 +976,22 @@ contract TimeBondDepository is Ownable {
      *  @notice makes incremental adjustment to control variable
      */
     function adjust() internal {
-        uint timeCanAdjust = adjustment.lastTime.add32( adjustment.buffer );
+        uint timeCanAdjust = adjustment.lastTime.add( adjustment.buffer );
         if( adjustment.rate != 0 && block.timestamp >= timeCanAdjust ) {
             uint initial = terms.controlVariable;
-            uint bcv = initial;
             if ( adjustment.add ) {
-                bcv = bcv.add(adjustment.rate);
-                if ( bcv >= adjustment.target ) {
+                terms.controlVariable = terms.controlVariable.add( adjustment.rate );
+                if ( terms.controlVariable >= adjustment.target ) {
                     adjustment.rate = 0;
-                    bcv = adjustment.target;
                 }
             } else {
-                bcv = bcv.sub(adjustment.rate);
-                if ( bcv <= adjustment.target ) {
+                terms.controlVariable = terms.controlVariable.sub( adjustment.rate );
+                if ( terms.controlVariable <= adjustment.target ) {
                     adjustment.rate = 0;
-                    bcv = adjustment.target;
                 }
             }
-            terms.controlVariable = bcv;
             adjustment.lastTime = uint32(block.timestamp);
-            emit ControlVariableAdjustment( initial, bcv, adjustment.rate, adjustment.add );
+            emit ControlVariableAdjustment( initial, terms.controlVariable, adjustment.rate, adjustment.add );
         }
     }
 
@@ -822,7 +1013,7 @@ contract TimeBondDepository is Ownable {
      *  @return uint
      */
     function maxPayout() public view returns ( uint ) {
-        return Time.totalSupply().mul( terms.maxPayout ) / 100000 ;
+        return IERC20( Time ).totalSupply().mul( terms.maxPayout ).div( 100000 );
     }
 
     /**
@@ -831,7 +1022,7 @@ contract TimeBondDepository is Ownable {
      *  @return uint
      */
     function payoutFor( uint _value ) public view returns ( uint ) {
-        return FixedPoint.fraction( _value, bondPrice() ).decode112with18() / 1e16 ;
+        return FixedPoint.fraction( _value, bondPrice() ).decode112with18().div( 1e16 );
     }
 
 
@@ -840,7 +1031,7 @@ contract TimeBondDepository is Ownable {
      *  @return price_ uint
      */
     function bondPrice() public view returns ( uint price_ ) {        
-        price_ = terms.controlVariable.mul( debtRatio() ).add( 1000000000 ) / 1e7;
+        price_ = terms.controlVariable.mul( debtRatio() ).add( 1000000000 ).div( 1e7 );
         if ( price_ < terms.minimumPrice ) {
             price_ = terms.minimumPrice;
         }
@@ -851,7 +1042,7 @@ contract TimeBondDepository is Ownable {
      *  @return price_ uint
      */
     function _bondPrice() internal returns ( uint price_ ) {
-        price_ = terms.controlVariable.mul( debtRatio() ).add( 1000000000 ) / 1e7;
+        price_ = terms.controlVariable.mul( debtRatio() ).add( 1000000000 ).div( 1e7 );
         if ( price_ < terms.minimumPrice ) {
             price_ = terms.minimumPrice;        
         } else if ( terms.minimumPrice != 0 ) {
@@ -865,23 +1056,23 @@ contract TimeBondDepository is Ownable {
      */
     function bondPriceInUSD() public view returns ( uint price_ ) {
         if( isLiquidityBond ) {
-            price_ = bondPrice().mul( bondCalculator.markdown( address(principle) ) ) / 100 ;
+            price_ = bondPrice().mul( IBondCalculator( bondCalculator ).markdown( principle ) ).div( 100 );
         } else {
-            price_ = bondPrice().mul( 10 ** principle.decimals() ) / 100;
+            price_ = bondPrice().mul( 10 ** IERC20( principle ).decimals() ).div( 100 );
         }
     }
 
 
     /**
-     *  @notice calculate current ratio of debt to Time supply
+     *  @notice calculate current ratio of debt to OHM supply
      *  @return debtRatio_ uint
      */
     function debtRatio() public view returns ( uint debtRatio_ ) {   
-        uint supply = Time.totalSupply();
+        uint supply = IERC20( Time ).totalSupply();
         debtRatio_ = FixedPoint.fraction( 
             currentDebt().mul( 1e9 ), 
             supply
-        ).decode112with18() / 1e18;
+        ).decode112with18().div( 1e18 );
     }
 
     /**
@@ -890,7 +1081,7 @@ contract TimeBondDepository is Ownable {
      */
     function standardizedDebtRatio() external view returns ( uint ) {
         if ( isLiquidityBond ) {
-            return debtRatio().mul( bondCalculator.markdown( address(principle) ) ) / 1e9;
+            return debtRatio().mul( IBondCalculator( bondCalculator ).markdown( principle ) ).div( 1e9 );
         } else {
             return debtRatio();
         }
@@ -910,7 +1101,7 @@ contract TimeBondDepository is Ownable {
      */
     function debtDecay() public view returns ( uint decay_ ) {
         uint32 timeSinceLast = uint32(block.timestamp).sub32( lastDecay );
-        decay_ = totalDebt.mul( timeSinceLast ) / terms.vestingTerm;
+        decay_ = totalDebt.mul( timeSinceLast ).div( terms.vestingTerm );
         if ( decay_ > totalDebt ) {
             decay_ = totalDebt;
         }
@@ -924,18 +1115,18 @@ contract TimeBondDepository is Ownable {
      */
     function percentVestedFor( address _depositor ) public view returns ( uint percentVested_ ) {
         Bond memory bond = bondInfo[ _depositor ];
-        uint secondsSinceLast = uint32(block.timestamp).sub32( bond.lastTime );
+        uint secondsSinceLast = uint32(block.timestamp).sub( bond.lastTime );
         uint vesting = bond.vesting;
 
         if ( vesting > 0 ) {
-            percentVested_ = secondsSinceLast.mul( 10000 ) / vesting;
+            percentVested_ = secondsSinceLast.mul( 10000 ).div( vesting );
         } else {
             percentVested_ = 0;
         }
     }
 
     /**
-     *  @notice calculate amount of Time available for claim by depositor
+     *  @notice calculate amount of OHM available for claim by depositor
      *  @param _depositor address
      *  @return pendingPayout_ uint
      */
@@ -946,7 +1137,7 @@ contract TimeBondDepository is Ownable {
         if ( percentVested >= 10000 ) {
             pendingPayout_ = payout;
         } else {
-            pendingPayout_ = payout.mul( percentVested ) / 10000;
+            pendingPayout_ = payout.mul( percentVested ).div( 10000 );
         }
     }
 
@@ -956,15 +1147,13 @@ contract TimeBondDepository is Ownable {
     /* ======= AUXILLIARY ======= */
 
     /**
-     *  @notice allow anyone to send lost tokens (excluding principle or Time) to the DAO
+     *  @notice allow anyone to send lost tokens (excluding principle or OHM) to the DAO
      *  @return bool
      */
-    function recoverLostToken(IERC20 _token ) external returns ( bool ) {
-        require( _token != Time, "NAT" );
-        require( _token != principle, "NAP" );
-        uint balance = _token.balanceOf( address(this));
-        _token.safeTransfer( DAO,  balance );
-        emit LogRecoverLostToken(address(_token), balance);
+    function recoverLostToken( address _token ) external returns ( bool ) {
+        require( _token != Time );
+        require( _token != principle );
+        IERC20( _token ).safeTransfer( DAO, IERC20( _token ).balanceOf( address(this) ) );
         return true;
     }
 }

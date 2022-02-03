@@ -23,10 +23,8 @@ import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 interface TimeEthBondDepositoryInterface extends ethers.utils.Interface {
   functions: {
     "DAO()": FunctionFragment;
-    "Time()": FunctionFragment;
+    "OHM()": FunctionFragment;
     "adjustment()": FunctionFragment;
-    "allowZapper(address)": FunctionFragment;
-    "allowedZappers(address)": FunctionFragment;
     "assetPrice()": FunctionFragment;
     "bondInfo(address)": FunctionFragment;
     "bondPrice()": FunctionFragment;
@@ -35,20 +33,18 @@ interface TimeEthBondDepositoryInterface extends ethers.utils.Interface {
     "debtDecay()": FunctionFragment;
     "debtRatio()": FunctionFragment;
     "deposit(uint256,uint256,address)": FunctionFragment;
-    "initializeBondTerms(uint256,uint256,uint256,uint256,uint32)": FunctionFragment;
+    "initializeBondTerms(uint256,uint256,uint256,uint256,uint256,uint32)": FunctionFragment;
     "lastDecay()": FunctionFragment;
     "maxPayout()": FunctionFragment;
     "payoutFor(uint256)": FunctionFragment;
     "pendingPayoutFor(address)": FunctionFragment;
     "percentVestedFor(address)": FunctionFragment;
     "policy()": FunctionFragment;
-    "priceFeed()": FunctionFragment;
     "principle()": FunctionFragment;
     "pullManagement()": FunctionFragment;
     "pushManagement(address)": FunctionFragment;
     "recoverLostToken(address)": FunctionFragment;
     "redeem(address,bool)": FunctionFragment;
-    "removeZapper(address)": FunctionFragment;
     "renounceManagement()": FunctionFragment;
     "setAdjustment(bool,uint256,uint256,uint32)": FunctionFragment;
     "setBondTerms(uint8,uint256)": FunctionFragment;
@@ -63,15 +59,10 @@ interface TimeEthBondDepositoryInterface extends ethers.utils.Interface {
   };
 
   encodeFunctionData(functionFragment: "DAO", values?: undefined): string;
-  encodeFunctionData(functionFragment: "Time", values?: undefined): string;
+  encodeFunctionData(functionFragment: "OHM", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "adjustment",
     values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "allowZapper", values: [string]): string;
-  encodeFunctionData(
-    functionFragment: "allowedZappers",
-    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "assetPrice",
@@ -100,6 +91,7 @@ interface TimeEthBondDepositoryInterface extends ethers.utils.Interface {
       BigNumberish,
       BigNumberish,
       BigNumberish,
+      BigNumberish,
       BigNumberish
     ]
   ): string;
@@ -118,7 +110,6 @@ interface TimeEthBondDepositoryInterface extends ethers.utils.Interface {
     values: [string]
   ): string;
   encodeFunctionData(functionFragment: "policy", values?: undefined): string;
-  encodeFunctionData(functionFragment: "priceFeed", values?: undefined): string;
   encodeFunctionData(functionFragment: "principle", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "pullManagement",
@@ -135,10 +126,6 @@ interface TimeEthBondDepositoryInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "redeem",
     values: [string, boolean]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "removeZapper",
-    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "renounceManagement",
@@ -171,16 +158,8 @@ interface TimeEthBondDepositoryInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "useHelper", values?: undefined): string;
 
   decodeFunctionResult(functionFragment: "DAO", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "Time", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "OHM", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "adjustment", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "allowZapper",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "allowedZappers",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "assetPrice", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "bondInfo", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "bondPrice", data: BytesLike): Result;
@@ -211,7 +190,6 @@ interface TimeEthBondDepositoryInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "policy", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "priceFeed", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "principle", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "pullManagement",
@@ -226,10 +204,6 @@ interface TimeEthBondDepositoryInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "redeem", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "removeZapper",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "renounceManagement",
     data: BytesLike
@@ -362,7 +336,7 @@ export class TimeEthBondDepository extends BaseContract {
   functions: {
     DAO(overrides?: CallOverrides): Promise<[string]>;
 
-    Time(overrides?: CallOverrides): Promise<[string]>;
+    OHM(overrides?: CallOverrides): Promise<[string]>;
 
     adjustment(
       overrides?: CallOverrides
@@ -375,13 +349,6 @@ export class TimeEthBondDepository extends BaseContract {
         lastTime: number;
       }
     >;
-
-    allowZapper(
-      zapper: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    allowedZappers(arg0: string, overrides?: CallOverrides): Promise<[boolean]>;
 
     assetPrice(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -427,6 +394,7 @@ export class TimeEthBondDepository extends BaseContract {
       _minimumPrice: BigNumberish,
       _maxPayout: BigNumberish,
       _maxDebt: BigNumberish,
+      _initialDebt: BigNumberish,
       _vestingTerm: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -452,8 +420,6 @@ export class TimeEthBondDepository extends BaseContract {
 
     policy(overrides?: CallOverrides): Promise<[string]>;
 
-    priceFeed(overrides?: CallOverrides): Promise<[string]>;
-
     principle(overrides?: CallOverrides): Promise<[string]>;
 
     pullManagement(
@@ -473,11 +439,6 @@ export class TimeEthBondDepository extends BaseContract {
     redeem(
       _recipient: string,
       _stake: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    removeZapper(
-      zapper: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -532,7 +493,7 @@ export class TimeEthBondDepository extends BaseContract {
 
   DAO(overrides?: CallOverrides): Promise<string>;
 
-  Time(overrides?: CallOverrides): Promise<string>;
+  OHM(overrides?: CallOverrides): Promise<string>;
 
   adjustment(
     overrides?: CallOverrides
@@ -545,13 +506,6 @@ export class TimeEthBondDepository extends BaseContract {
       lastTime: number;
     }
   >;
-
-  allowZapper(
-    zapper: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  allowedZappers(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
   assetPrice(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -589,6 +543,7 @@ export class TimeEthBondDepository extends BaseContract {
     _minimumPrice: BigNumberish,
     _maxPayout: BigNumberish,
     _maxDebt: BigNumberish,
+    _initialDebt: BigNumberish,
     _vestingTerm: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -614,8 +569,6 @@ export class TimeEthBondDepository extends BaseContract {
 
   policy(overrides?: CallOverrides): Promise<string>;
 
-  priceFeed(overrides?: CallOverrides): Promise<string>;
-
   principle(overrides?: CallOverrides): Promise<string>;
 
   pullManagement(
@@ -635,11 +588,6 @@ export class TimeEthBondDepository extends BaseContract {
   redeem(
     _recipient: string,
     _stake: boolean,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  removeZapper(
-    zapper: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -694,7 +642,7 @@ export class TimeEthBondDepository extends BaseContract {
   callStatic: {
     DAO(overrides?: CallOverrides): Promise<string>;
 
-    Time(overrides?: CallOverrides): Promise<string>;
+    OHM(overrides?: CallOverrides): Promise<string>;
 
     adjustment(
       overrides?: CallOverrides
@@ -707,10 +655,6 @@ export class TimeEthBondDepository extends BaseContract {
         lastTime: number;
       }
     >;
-
-    allowZapper(zapper: string, overrides?: CallOverrides): Promise<void>;
-
-    allowedZappers(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
     assetPrice(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -748,6 +692,7 @@ export class TimeEthBondDepository extends BaseContract {
       _minimumPrice: BigNumberish,
       _maxPayout: BigNumberish,
       _maxDebt: BigNumberish,
+      _initialDebt: BigNumberish,
       _vestingTerm: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -773,8 +718,6 @@ export class TimeEthBondDepository extends BaseContract {
 
     policy(overrides?: CallOverrides): Promise<string>;
 
-    priceFeed(overrides?: CallOverrides): Promise<string>;
-
     principle(overrides?: CallOverrides): Promise<string>;
 
     pullManagement(overrides?: CallOverrides): Promise<void>;
@@ -791,8 +734,6 @@ export class TimeEthBondDepository extends BaseContract {
       _stake: boolean,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    removeZapper(zapper: string, overrides?: CallOverrides): Promise<void>;
 
     renounceManagement(overrides?: CallOverrides): Promise<void>;
 
@@ -974,16 +915,9 @@ export class TimeEthBondDepository extends BaseContract {
   estimateGas: {
     DAO(overrides?: CallOverrides): Promise<BigNumber>;
 
-    Time(overrides?: CallOverrides): Promise<BigNumber>;
+    OHM(overrides?: CallOverrides): Promise<BigNumber>;
 
     adjustment(overrides?: CallOverrides): Promise<BigNumber>;
-
-    allowZapper(
-      zapper: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    allowedZappers(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     assetPrice(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1011,6 +945,7 @@ export class TimeEthBondDepository extends BaseContract {
       _minimumPrice: BigNumberish,
       _maxPayout: BigNumberish,
       _maxDebt: BigNumberish,
+      _initialDebt: BigNumberish,
       _vestingTerm: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -1036,8 +971,6 @@ export class TimeEthBondDepository extends BaseContract {
 
     policy(overrides?: CallOverrides): Promise<BigNumber>;
 
-    priceFeed(overrides?: CallOverrides): Promise<BigNumber>;
-
     principle(overrides?: CallOverrides): Promise<BigNumber>;
 
     pullManagement(
@@ -1057,11 +990,6 @@ export class TimeEthBondDepository extends BaseContract {
     redeem(
       _recipient: string,
       _stake: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    removeZapper(
-      zapper: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1107,19 +1035,9 @@ export class TimeEthBondDepository extends BaseContract {
   populateTransaction: {
     DAO(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    Time(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    OHM(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     adjustment(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    allowZapper(
-      zapper: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    allowedZappers(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     assetPrice(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1150,6 +1068,7 @@ export class TimeEthBondDepository extends BaseContract {
       _minimumPrice: BigNumberish,
       _maxPayout: BigNumberish,
       _maxDebt: BigNumberish,
+      _initialDebt: BigNumberish,
       _vestingTerm: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -1175,8 +1094,6 @@ export class TimeEthBondDepository extends BaseContract {
 
     policy(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    priceFeed(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     principle(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     pullManagement(
@@ -1196,11 +1113,6 @@ export class TimeEthBondDepository extends BaseContract {
     redeem(
       _recipient: string,
       _stake: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    removeZapper(
-      zapper: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

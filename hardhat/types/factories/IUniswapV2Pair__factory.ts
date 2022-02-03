@@ -16,17 +16,17 @@ const _abi = [
     outputs: [
       {
         internalType: "uint112",
-        name: "_reserve0",
+        name: "reserve0",
         type: "uint112",
       },
       {
         internalType: "uint112",
-        name: "_reserve1",
+        name: "reserve1",
         type: "uint112",
       },
       {
         internalType: "uint32",
-        name: "_blockTimestampLast",
+        name: "blockTimestampLast",
         type: "uint32",
       },
     ],
@@ -43,7 +43,7 @@ const _abi = [
         type: "address",
       },
     ],
-    stateMutability: "pure",
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -56,7 +56,20 @@ const _abi = [
         type: "address",
       },
     ],
-    stateMutability: "pure",
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "totalSupply",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
 ];

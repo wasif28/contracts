@@ -21,14 +21,17 @@ import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
 interface IStakingInterface extends ethers.utils.Interface {
   functions: {
+    "claim(address)": FunctionFragment;
     "stake(uint256,address)": FunctionFragment;
   };
 
+  encodeFunctionData(functionFragment: "claim", values: [string]): string;
   encodeFunctionData(
     functionFragment: "stake",
     values: [BigNumberish, string]
   ): string;
 
+  decodeFunctionResult(functionFragment: "claim", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "stake", data: BytesLike): Result;
 
   events: {};
@@ -78,12 +81,22 @@ export class IStaking extends BaseContract {
   interface: IStakingInterface;
 
   functions: {
+    claim(
+      _recipient: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     stake(
       _amount: BigNumberish,
       _recipient: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
+
+  claim(
+    _recipient: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   stake(
     _amount: BigNumberish,
@@ -92,6 +105,8 @@ export class IStaking extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    claim(_recipient: string, overrides?: CallOverrides): Promise<void>;
+
     stake(
       _amount: BigNumberish,
       _recipient: string,
@@ -102,6 +117,11 @@ export class IStaking extends BaseContract {
   filters: {};
 
   estimateGas: {
+    claim(
+      _recipient: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     stake(
       _amount: BigNumberish,
       _recipient: string,
@@ -110,6 +130,11 @@ export class IStaking extends BaseContract {
   };
 
   populateTransaction: {
+    claim(
+      _recipient: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     stake(
       _amount: BigNumberish,
       _recipient: string,

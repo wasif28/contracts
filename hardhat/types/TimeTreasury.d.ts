@@ -29,14 +29,11 @@ interface TimeTreasuryInterface extends ethers.utils.Interface {
     "Time()": FunctionFragment;
     "auditReserves()": FunctionFragment;
     "bondCalculator(address)": FunctionFragment;
-    "claimOwnership()": FunctionFragment;
     "debtorBalance(address)": FunctionFragment;
     "debtorQueue(address)": FunctionFragment;
     "debtors(uint256)": FunctionFragment;
     "deposit(uint256,address,uint256)": FunctionFragment;
     "excessReserves()": FunctionFragment;
-    "hourlyLimitAmounts(address)": FunctionFragment;
-    "hourlyLimitQueue(address)": FunctionFragment;
     "incurDebt(uint256,address)": FunctionFragment;
     "isDebtor(address)": FunctionFragment;
     "isLiquidityDepositor(address)": FunctionFragment;
@@ -47,17 +44,18 @@ interface TimeTreasuryInterface extends ethers.utils.Interface {
     "isReserveSpender(address)": FunctionFragment;
     "isReserveToken(address)": FunctionFragment;
     "isRewardManager(address)": FunctionFragment;
-    "limitAmount()": FunctionFragment;
     "liquidityDepositors(uint256)": FunctionFragment;
     "liquidityManagers(uint256)": FunctionFragment;
     "liquidityTokens(uint256)": FunctionFragment;
     "manage(address,uint256)": FunctionFragment;
+    "manager()": FunctionFragment;
     "mintRewards(address,uint256)": FunctionFragment;
-    "owner()": FunctionFragment;
-    "pendingOwner()": FunctionFragment;
+    "pullManagement()": FunctionFragment;
+    "pushManagement(address)": FunctionFragment;
     "queue(uint8,address)": FunctionFragment;
+    "renounceManagement()": FunctionFragment;
+    "repayDebtWithOHM(uint256)": FunctionFragment;
     "repayDebtWithReserve(uint256,address)": FunctionFragment;
-    "repayDebtWithTime(uint256)": FunctionFragment;
     "reserveDepositorQueue(address)": FunctionFragment;
     "reserveDepositors(uint256)": FunctionFragment;
     "reserveManagers(uint256)": FunctionFragment;
@@ -69,11 +67,9 @@ interface TimeTreasuryInterface extends ethers.utils.Interface {
     "rewardManagers(uint256)": FunctionFragment;
     "sOHMQueue()": FunctionFragment;
     "secondsNeededForQueue()": FunctionFragment;
-    "setLimitAmount(uint256)": FunctionFragment;
     "toggle(uint8,address,address)": FunctionFragment;
     "totalDebt()": FunctionFragment;
     "totalReserves()": FunctionFragment;
-    "transferOwnership(address,bool,bool)": FunctionFragment;
     "valueOf(address,uint256)": FunctionFragment;
     "withdraw(uint256,address)": FunctionFragment;
   };
@@ -105,10 +101,6 @@ interface TimeTreasuryInterface extends ethers.utils.Interface {
     values: [string]
   ): string;
   encodeFunctionData(
-    functionFragment: "claimOwnership",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "debtorBalance",
     values: [string]
   ): string;
@@ -124,14 +116,6 @@ interface TimeTreasuryInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "excessReserves",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "hourlyLimitAmounts",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "hourlyLimitQueue",
-    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "incurDebt",
@@ -171,10 +155,6 @@ interface TimeTreasuryInterface extends ethers.utils.Interface {
     values: [string]
   ): string;
   encodeFunctionData(
-    functionFragment: "limitAmount",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "liquidityDepositors",
     values: [BigNumberish]
   ): string;
@@ -190,26 +170,34 @@ interface TimeTreasuryInterface extends ethers.utils.Interface {
     functionFragment: "manage",
     values: [string, BigNumberish]
   ): string;
+  encodeFunctionData(functionFragment: "manager", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "mintRewards",
     values: [string, BigNumberish]
   ): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "pendingOwner",
+    functionFragment: "pullManagement",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "pushManagement",
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "queue",
     values: [BigNumberish, string]
   ): string;
   encodeFunctionData(
-    functionFragment: "repayDebtWithReserve",
-    values: [BigNumberish, string]
+    functionFragment: "renounceManagement",
+    values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "repayDebtWithTime",
+    functionFragment: "repayDebtWithOHM",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "repayDebtWithReserve",
+    values: [BigNumberish, string]
   ): string;
   encodeFunctionData(
     functionFragment: "reserveDepositorQueue",
@@ -253,10 +241,6 @@ interface TimeTreasuryInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "setLimitAmount",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
     functionFragment: "toggle",
     values: [BigNumberish, string, string]
   ): string;
@@ -264,10 +248,6 @@ interface TimeTreasuryInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "totalReserves",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [string, boolean, boolean]
   ): string;
   encodeFunctionData(
     functionFragment: "valueOf",
@@ -305,10 +285,6 @@ interface TimeTreasuryInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "claimOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "debtorBalance",
     data: BytesLike
   ): Result;
@@ -320,14 +296,6 @@ interface TimeTreasuryInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "excessReserves",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "hourlyLimitAmounts",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "hourlyLimitQueue",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "incurDebt", data: BytesLike): Result;
@@ -365,10 +333,6 @@ interface TimeTreasuryInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "limitAmount",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "liquidityDepositors",
     data: BytesLike
   ): Result;
@@ -381,22 +345,30 @@ interface TimeTreasuryInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "manage", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "manager", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "mintRewards",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "pendingOwner",
+    functionFragment: "pullManagement",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "pushManagement",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "queue", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "repayDebtWithReserve",
+    functionFragment: "renounceManagement",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "repayDebtWithTime",
+    functionFragment: "repayDebtWithOHM",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "repayDebtWithReserve",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -440,18 +412,10 @@ interface TimeTreasuryInterface extends ethers.utils.Interface {
     functionFragment: "secondsNeededForQueue",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "setLimitAmount",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "toggle", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "totalDebt", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "totalReserves",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "valueOf", data: BytesLike): Result;
@@ -459,11 +423,11 @@ interface TimeTreasuryInterface extends ethers.utils.Interface {
 
   events: {
     "ChangeActivated(uint8,address,bool)": EventFragment;
-    "ChangeLimitAmount(uint256)": EventFragment;
     "ChangeQueued(uint8,address)": EventFragment;
     "CreateDebt(address,address,uint256,uint256)": EventFragment;
     "Deposit(address,uint256,uint256)": EventFragment;
-    "OwnershipTransferred(address,address)": EventFragment;
+    "OwnershipPulled(address,address)": EventFragment;
+    "OwnershipPushed(address,address)": EventFragment;
     "RepayDebt(address,address,uint256,uint256)": EventFragment;
     "ReservesAudited(uint256)": EventFragment;
     "ReservesManaged(address,uint256)": EventFragment;
@@ -473,11 +437,11 @@ interface TimeTreasuryInterface extends ethers.utils.Interface {
   };
 
   getEvent(nameOrSignatureOrTopic: "ChangeActivated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ChangeLimitAmount"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ChangeQueued"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "CreateDebt"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Deposit"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OwnershipPulled"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OwnershipPushed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RepayDebt"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ReservesAudited"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ReservesManaged"): EventFragment;
@@ -492,10 +456,6 @@ export type ChangeActivatedEvent = TypedEvent<
     activated: string;
     result: boolean;
   }
->;
-
-export type ChangeLimitAmountEvent = TypedEvent<
-  [BigNumber] & { amount: BigNumber }
 >;
 
 export type ChangeQueuedEvent = TypedEvent<
@@ -519,7 +479,11 @@ export type DepositEvent = TypedEvent<
   }
 >;
 
-export type OwnershipTransferredEvent = TypedEvent<
+export type OwnershipPulledEvent = TypedEvent<
+  [string, string] & { previousOwner: string; newOwner: string }
+>;
+
+export type OwnershipPushedEvent = TypedEvent<
   [string, string] & { previousOwner: string; newOwner: string }
 >;
 
@@ -634,10 +598,6 @@ export class TimeTreasury extends BaseContract {
 
     bondCalculator(arg0: string, overrides?: CallOverrides): Promise<[string]>;
 
-    claimOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     debtorBalance(
       arg0: string,
       overrides?: CallOverrides
@@ -655,16 +615,6 @@ export class TimeTreasury extends BaseContract {
     ): Promise<ContractTransaction>;
 
     excessReserves(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    hourlyLimitAmounts(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    hourlyLimitQueue(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<[number]>;
 
     incurDebt(
       _amount: BigNumberish,
@@ -711,8 +661,6 @@ export class TimeTreasury extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    limitAmount(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     liquidityDepositors(
       arg0: BigNumberish,
       overrides?: CallOverrides
@@ -734,15 +682,22 @@ export class TimeTreasury extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    manager(overrides?: CallOverrides): Promise<[string]>;
+
     mintRewards(
       _recipient: string,
       _amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    owner(overrides?: CallOverrides): Promise<[string]>;
+    pullManagement(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
-    pendingOwner(overrides?: CallOverrides): Promise<[string]>;
+    pushManagement(
+      newOwner_: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     queue(
       _managing: BigNumberish,
@@ -750,14 +705,18 @@ export class TimeTreasury extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    repayDebtWithReserve(
-      _amount: BigNumberish,
-      _token: string,
+    renounceManagement(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    repayDebtWithTime(
+    repayDebtWithOHM(
       _amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    repayDebtWithReserve(
+      _amount: BigNumberish,
+      _token: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -810,11 +769,6 @@ export class TimeTreasury extends BaseContract {
 
     secondsNeededForQueue(overrides?: CallOverrides): Promise<[number]>;
 
-    setLimitAmount(
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     toggle(
       _managing: BigNumberish,
       _address: string,
@@ -825,13 +779,6 @@ export class TimeTreasury extends BaseContract {
     totalDebt(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     totalReserves(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    transferOwnership(
-      newOwner: string,
-      direct: boolean,
-      renounce: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
 
     valueOf(
       _token: string,
@@ -870,10 +817,6 @@ export class TimeTreasury extends BaseContract {
 
   bondCalculator(arg0: string, overrides?: CallOverrides): Promise<string>;
 
-  claimOwnership(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   debtorBalance(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   debtorQueue(arg0: string, overrides?: CallOverrides): Promise<number>;
@@ -888,13 +831,6 @@ export class TimeTreasury extends BaseContract {
   ): Promise<ContractTransaction>;
 
   excessReserves(overrides?: CallOverrides): Promise<BigNumber>;
-
-  hourlyLimitAmounts(
-    arg0: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  hourlyLimitQueue(arg0: string, overrides?: CallOverrides): Promise<number>;
 
   incurDebt(
     _amount: BigNumberish,
@@ -923,8 +859,6 @@ export class TimeTreasury extends BaseContract {
 
   isRewardManager(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
-  limitAmount(overrides?: CallOverrides): Promise<BigNumber>;
-
   liquidityDepositors(
     arg0: BigNumberish,
     overrides?: CallOverrides
@@ -946,15 +880,22 @@ export class TimeTreasury extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  manager(overrides?: CallOverrides): Promise<string>;
+
   mintRewards(
     _recipient: string,
     _amount: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  owner(overrides?: CallOverrides): Promise<string>;
+  pullManagement(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
-  pendingOwner(overrides?: CallOverrides): Promise<string>;
+  pushManagement(
+    newOwner_: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   queue(
     _managing: BigNumberish,
@@ -962,14 +903,18 @@ export class TimeTreasury extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  repayDebtWithReserve(
-    _amount: BigNumberish,
-    _token: string,
+  renounceManagement(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  repayDebtWithTime(
+  repayDebtWithOHM(
     _amount: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  repayDebtWithReserve(
+    _amount: BigNumberish,
+    _token: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1010,11 +955,6 @@ export class TimeTreasury extends BaseContract {
 
   secondsNeededForQueue(overrides?: CallOverrides): Promise<number>;
 
-  setLimitAmount(
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   toggle(
     _managing: BigNumberish,
     _address: string,
@@ -1025,13 +965,6 @@ export class TimeTreasury extends BaseContract {
   totalDebt(overrides?: CallOverrides): Promise<BigNumber>;
 
   totalReserves(overrides?: CallOverrides): Promise<BigNumber>;
-
-  transferOwnership(
-    newOwner: string,
-    direct: boolean,
-    renounce: boolean,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
 
   valueOf(
     _token: string,
@@ -1074,8 +1007,6 @@ export class TimeTreasury extends BaseContract {
 
     bondCalculator(arg0: string, overrides?: CallOverrides): Promise<string>;
 
-    claimOwnership(overrides?: CallOverrides): Promise<void>;
-
     debtorBalance(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     debtorQueue(arg0: string, overrides?: CallOverrides): Promise<number>;
@@ -1090,13 +1021,6 @@ export class TimeTreasury extends BaseContract {
     ): Promise<BigNumber>;
 
     excessReserves(overrides?: CallOverrides): Promise<BigNumber>;
-
-    hourlyLimitAmounts(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    hourlyLimitQueue(arg0: string, overrides?: CallOverrides): Promise<number>;
 
     incurDebt(
       _amount: BigNumberish,
@@ -1131,8 +1055,6 @@ export class TimeTreasury extends BaseContract {
 
     isRewardManager(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
-    limitAmount(overrides?: CallOverrides): Promise<BigNumber>;
-
     liquidityDepositors(
       arg0: BigNumberish,
       overrides?: CallOverrides
@@ -1154,15 +1076,17 @@ export class TimeTreasury extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    manager(overrides?: CallOverrides): Promise<string>;
+
     mintRewards(
       _recipient: string,
       _amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    owner(overrides?: CallOverrides): Promise<string>;
+    pullManagement(overrides?: CallOverrides): Promise<void>;
 
-    pendingOwner(overrides?: CallOverrides): Promise<string>;
+    pushManagement(newOwner_: string, overrides?: CallOverrides): Promise<void>;
 
     queue(
       _managing: BigNumberish,
@@ -1170,14 +1094,16 @@ export class TimeTreasury extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    repayDebtWithReserve(
+    renounceManagement(overrides?: CallOverrides): Promise<void>;
+
+    repayDebtWithOHM(
       _amount: BigNumberish,
-      _token: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    repayDebtWithTime(
+    repayDebtWithReserve(
       _amount: BigNumberish,
+      _token: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1227,11 +1153,6 @@ export class TimeTreasury extends BaseContract {
 
     secondsNeededForQueue(overrides?: CallOverrides): Promise<number>;
 
-    setLimitAmount(
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     toggle(
       _managing: BigNumberish,
       _address: string,
@@ -1242,13 +1163,6 @@ export class TimeTreasury extends BaseContract {
     totalDebt(overrides?: CallOverrides): Promise<BigNumber>;
 
     totalReserves(overrides?: CallOverrides): Promise<BigNumber>;
-
-    transferOwnership(
-      newOwner: string,
-      direct: boolean,
-      renounce: boolean,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     valueOf(
       _token: string,
@@ -1281,14 +1195,6 @@ export class TimeTreasury extends BaseContract {
       [number, string, boolean],
       { managing: number; activated: string; result: boolean }
     >;
-
-    "ChangeLimitAmount(uint256)"(
-      amount?: null
-    ): TypedEventFilter<[BigNumber], { amount: BigNumber }>;
-
-    ChangeLimitAmount(
-      amount?: null
-    ): TypedEventFilter<[BigNumber], { amount: BigNumber }>;
 
     "ChangeQueued(uint8,address)"(
       managing?: BigNumberish | null,
@@ -1338,7 +1244,7 @@ export class TimeTreasury extends BaseContract {
       { token: string; amount: BigNumber; value: BigNumber }
     >;
 
-    "OwnershipTransferred(address,address)"(
+    "OwnershipPulled(address,address)"(
       previousOwner?: string | null,
       newOwner?: string | null
     ): TypedEventFilter<
@@ -1346,7 +1252,23 @@ export class TimeTreasury extends BaseContract {
       { previousOwner: string; newOwner: string }
     >;
 
-    OwnershipTransferred(
+    OwnershipPulled(
+      previousOwner?: string | null,
+      newOwner?: string | null
+    ): TypedEventFilter<
+      [string, string],
+      { previousOwner: string; newOwner: string }
+    >;
+
+    "OwnershipPushed(address,address)"(
+      previousOwner?: string | null,
+      newOwner?: string | null
+    ): TypedEventFilter<
+      [string, string],
+      { previousOwner: string; newOwner: string }
+    >;
+
+    OwnershipPushed(
       previousOwner?: string | null,
       newOwner?: string | null
     ): TypedEventFilter<
@@ -1474,10 +1396,6 @@ export class TimeTreasury extends BaseContract {
 
     bondCalculator(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    claimOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     debtorBalance(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     debtorQueue(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -1492,16 +1410,6 @@ export class TimeTreasury extends BaseContract {
     ): Promise<BigNumber>;
 
     excessReserves(overrides?: CallOverrides): Promise<BigNumber>;
-
-    hourlyLimitAmounts(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    hourlyLimitQueue(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     incurDebt(
       _amount: BigNumberish,
@@ -1548,8 +1456,6 @@ export class TimeTreasury extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    limitAmount(overrides?: CallOverrides): Promise<BigNumber>;
-
     liquidityDepositors(
       arg0: BigNumberish,
       overrides?: CallOverrides
@@ -1571,15 +1477,22 @@ export class TimeTreasury extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    manager(overrides?: CallOverrides): Promise<BigNumber>;
+
     mintRewards(
       _recipient: string,
       _amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    owner(overrides?: CallOverrides): Promise<BigNumber>;
+    pullManagement(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
-    pendingOwner(overrides?: CallOverrides): Promise<BigNumber>;
+    pushManagement(
+      newOwner_: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     queue(
       _managing: BigNumberish,
@@ -1587,14 +1500,18 @@ export class TimeTreasury extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    repayDebtWithReserve(
-      _amount: BigNumberish,
-      _token: string,
+    renounceManagement(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    repayDebtWithTime(
+    repayDebtWithOHM(
       _amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    repayDebtWithReserve(
+      _amount: BigNumberish,
+      _token: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1647,11 +1564,6 @@ export class TimeTreasury extends BaseContract {
 
     secondsNeededForQueue(overrides?: CallOverrides): Promise<BigNumber>;
 
-    setLimitAmount(
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     toggle(
       _managing: BigNumberish,
       _address: string,
@@ -1662,13 +1574,6 @@ export class TimeTreasury extends BaseContract {
     totalDebt(overrides?: CallOverrides): Promise<BigNumber>;
 
     totalReserves(overrides?: CallOverrides): Promise<BigNumber>;
-
-    transferOwnership(
-      newOwner: string,
-      direct: boolean,
-      renounce: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
 
     valueOf(
       _token: string,
@@ -1717,10 +1622,6 @@ export class TimeTreasury extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    claimOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     debtorBalance(
       arg0: string,
       overrides?: CallOverrides
@@ -1744,16 +1645,6 @@ export class TimeTreasury extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     excessReserves(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    hourlyLimitAmounts(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    hourlyLimitQueue(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     incurDebt(
       _amount: BigNumberish,
@@ -1806,8 +1697,6 @@ export class TimeTreasury extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    limitAmount(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     liquidityDepositors(
       arg0: BigNumberish,
       overrides?: CallOverrides
@@ -1829,15 +1718,22 @@ export class TimeTreasury extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    manager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     mintRewards(
       _recipient: string,
       _amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    pullManagement(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
-    pendingOwner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    pushManagement(
+      newOwner_: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
     queue(
       _managing: BigNumberish,
@@ -1845,14 +1741,18 @@ export class TimeTreasury extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    repayDebtWithReserve(
-      _amount: BigNumberish,
-      _token: string,
+    renounceManagement(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    repayDebtWithTime(
+    repayDebtWithOHM(
       _amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    repayDebtWithReserve(
+      _amount: BigNumberish,
+      _token: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1907,11 +1807,6 @@ export class TimeTreasury extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    setLimitAmount(
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     toggle(
       _managing: BigNumberish,
       _address: string,
@@ -1922,13 +1817,6 @@ export class TimeTreasury extends BaseContract {
     totalDebt(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     totalReserves(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    transferOwnership(
-      newOwner: string,
-      direct: boolean,
-      renounce: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
 
     valueOf(
       _token: string,

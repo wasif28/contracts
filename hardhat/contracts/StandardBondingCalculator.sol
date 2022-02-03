@@ -1,3 +1,7 @@
+/**
+ *Submitted for verification at snowtrace.io on 2021-11-09
+*/
+
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity 0.7.5;
 
@@ -183,58 +187,48 @@ library FixedPoint {
     }
 }
 
-library LowGasSafeMath {
-    /// @notice Returns x + y, reverts if sum overflows uint256
-    /// @param x The augend
-    /// @param y The addend
-    /// @return z The sum of x and y
-    function add(uint256 x, uint256 y) internal pure returns (uint256 z) {
-        require((z = x + y) >= x);
+library SafeMath {
+
+    function add(uint256 a, uint256 b) internal pure returns (uint256) {
+        uint256 c = a + b;
+        require(c >= a, "SafeMath: addition overflow");
+
+        return c;
     }
 
-    function add32(uint32 x, uint32 y) internal pure returns (uint32 z) {
-        require((z = x + y) >= x);
+    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+        return sub(a, b, "SafeMath: subtraction overflow");
     }
 
-    /// @notice Returns x - y, reverts if underflows
-    /// @param x The minuend
-    /// @param y The subtrahend
-    /// @return z The difference of x and y
-    function sub(uint256 x, uint256 y) internal pure returns (uint256 z) {
-        require((z = x - y) <= x);
+    function sub(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+        require(b <= a, errorMessage);
+        uint256 c = a - b;
+
+        return c;
     }
 
-    function sub32(uint32 x, uint32 y) internal pure returns (uint32 z) {
-        require((z = x - y) <= x);
+    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+
+        if (a == 0) {
+            return 0;
+        }
+
+        uint256 c = a * b;
+        require(c / a == b, "SafeMath: multiplication overflow");
+
+        return c;
     }
 
-    /// @notice Returns x * y, reverts if overflows
-    /// @param x The multiplicand
-    /// @param y The multiplier
-    /// @return z The product of x and y
-    function mul(uint256 x, uint256 y) internal pure returns (uint256 z) {
-        require(x == 0 || (z = x * y) / x == y);
+    function div(uint256 a, uint256 b) internal pure returns (uint256) {
+        return div(a, b, "SafeMath: division by zero");
     }
 
-    /// @notice Returns x + y, reverts if overflows or underflows
-    /// @param x The augend
-    /// @param y The addend
-    /// @return z The sum of x and y
-    function add(int256 x, int256 y) internal pure returns (int256 z) {
-        require((z = x + y) >= x == (y >= 0));
-    }
+    function div(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+        require(b > 0, errorMessage);
+        uint256 c = a / b;
+        // assert(a == b * c + a % b); // There is no case in which this doesn't hold
 
-    /// @notice Returns x - y, reverts if overflows or underflows
-    /// @param x The minuend
-    /// @param y The subtrahend
-    /// @return z The difference of x and y
-    function sub(int256 x, int256 y) internal pure returns (int256 z) {
-        require((z = x - y) <= x == (y >= 0));
-    }
-
-    function div(uint256 x, uint256 y) internal pure returns(uint256 z){
-        require(y > 0);
-        z=x/y;
+        return c;
     }
 
     function sqrrt(uint256 a) internal pure returns (uint c) {
@@ -272,32 +266,23 @@ interface IBondingCalculator {
 contract TimeBondingCalculator is IBondingCalculator {
 
     using FixedPoint for *;
-    using LowGasSafeMath for uint;
-    using LowGasSafeMath for uint112;
+    using SafeMath for uint;
+    using SafeMath for uint112;
 
-    IERC20 public immutable Time;
+    address public immutable Time;
 
     constructor( address _Time ) {
         require( _Time != address(0) );
-        Time = IERC20(_Time);
+        Time = _Time;
     }
 
     function getKValue( address _pair ) public view returns( uint k_ ) {
         uint token0 = IERC20( IUniswapV2Pair( _pair ).token0() ).decimals();
         uint token1 = IERC20( IUniswapV2Pair( _pair ).token1() ).decimals();
-        uint pairDecimals = IERC20( _pair ).decimals();
+        uint decimals = token0.add( token1 ).sub( IERC20( _pair ).decimals() );
 
         (uint reserve0, uint reserve1, ) = IUniswapV2Pair( _pair ).getReserves();
-        if (token0.add(token1) <  pairDecimals)
-        {
-            uint decimals = pairDecimals.sub(token0.add(token1));
-            k_ = reserve0.mul(reserve1).mul( 10 ** decimals );
-        }
-        else {
-            uint decimals = token0.add(token1).sub(pairDecimals);
-            k_ = reserve0.mul(reserve1).div( 10 ** decimals );
-        }
-        
+        k_ = reserve0.mul(reserve1).div( 10 ** decimals );
     }
 
     function getTotalValue( address _pair ) public view returns ( uint _value ) {
@@ -315,12 +300,11 @@ contract TimeBondingCalculator is IBondingCalculator {
         ( uint reserve0, uint reserve1, ) = IUniswapV2Pair( _pair ).getReserves();
 
         uint reserve;
-        if ( IUniswapV2Pair( _pair ).token0() == address(Time) ) {
+        if ( IUniswapV2Pair( _pair ).token0() == Time ) {
             reserve = reserve1;
         } else {
-            require(IUniswapV2Pair( _pair ).token1() == address(Time), "not a Time lp pair");
             reserve = reserve0;
         }
-        return reserve.mul( 2 * ( 10 ** Time.decimals() ) ).div( getTotalValue( _pair ) );
+        return reserve.mul( 2 * ( 10 ** IERC20( Time ).decimals() ) ).div( getTotalValue( _pair ) );
     }
 }

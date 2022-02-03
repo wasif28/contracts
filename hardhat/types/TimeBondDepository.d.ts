@@ -12,7 +12,6 @@ import {
   BaseContract,
   ContractTransaction,
   Overrides,
-  PayableOverrides,
   CallOverrides,
 } from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
@@ -25,9 +24,7 @@ interface TimeBondDepositoryInterface extends ethers.utils.Interface {
     "DAO()": FunctionFragment;
     "Time()": FunctionFragment;
     "adjustment()": FunctionFragment;
-    "allowZapper(address)": FunctionFragment;
-    "allowedZappers(address)": FunctionFragment;
-    "assetPrice()": FunctionFragment;
+    "bondCalculator()": FunctionFragment;
     "bondInfo(address)": FunctionFragment;
     "bondPrice()": FunctionFragment;
     "bondPriceInUSD()": FunctionFragment;
@@ -35,20 +32,19 @@ interface TimeBondDepositoryInterface extends ethers.utils.Interface {
     "debtDecay()": FunctionFragment;
     "debtRatio()": FunctionFragment;
     "deposit(uint256,uint256,address)": FunctionFragment;
-    "initializeBondTerms(uint256,uint256,uint256,uint256,uint32)": FunctionFragment;
+    "initializeBondTerms(uint256,uint256,uint256,uint256,uint256,uint256,uint32)": FunctionFragment;
+    "isLiquidityBond()": FunctionFragment;
     "lastDecay()": FunctionFragment;
     "maxPayout()": FunctionFragment;
     "payoutFor(uint256)": FunctionFragment;
     "pendingPayoutFor(address)": FunctionFragment;
     "percentVestedFor(address)": FunctionFragment;
     "policy()": FunctionFragment;
-    "priceFeed()": FunctionFragment;
     "principle()": FunctionFragment;
     "pullManagement()": FunctionFragment;
     "pushManagement(address)": FunctionFragment;
     "recoverLostToken(address)": FunctionFragment;
     "redeem(address,bool)": FunctionFragment;
-    "removeZapper(address)": FunctionFragment;
     "renounceManagement()": FunctionFragment;
     "setAdjustment(bool,uint256,uint256,uint32)": FunctionFragment;
     "setBondTerms(uint8,uint256)": FunctionFragment;
@@ -68,13 +64,8 @@ interface TimeBondDepositoryInterface extends ethers.utils.Interface {
     functionFragment: "adjustment",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "allowZapper", values: [string]): string;
   encodeFunctionData(
-    functionFragment: "allowedZappers",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "assetPrice",
+    functionFragment: "bondCalculator",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "bondInfo", values: [string]): string;
@@ -100,8 +91,14 @@ interface TimeBondDepositoryInterface extends ethers.utils.Interface {
       BigNumberish,
       BigNumberish,
       BigNumberish,
+      BigNumberish,
+      BigNumberish,
       BigNumberish
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isLiquidityBond",
+    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "lastDecay", values?: undefined): string;
   encodeFunctionData(functionFragment: "maxPayout", values?: undefined): string;
@@ -118,7 +115,6 @@ interface TimeBondDepositoryInterface extends ethers.utils.Interface {
     values: [string]
   ): string;
   encodeFunctionData(functionFragment: "policy", values?: undefined): string;
-  encodeFunctionData(functionFragment: "priceFeed", values?: undefined): string;
   encodeFunctionData(functionFragment: "principle", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "pullManagement",
@@ -135,10 +131,6 @@ interface TimeBondDepositoryInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "redeem",
     values: [string, boolean]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "removeZapper",
-    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "renounceManagement",
@@ -174,14 +166,9 @@ interface TimeBondDepositoryInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "Time", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "adjustment", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "allowZapper",
+    functionFragment: "bondCalculator",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "allowedZappers",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "assetPrice", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "bondInfo", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "bondPrice", data: BytesLike): Result;
   decodeFunctionResult(
@@ -199,6 +186,10 @@ interface TimeBondDepositoryInterface extends ethers.utils.Interface {
     functionFragment: "initializeBondTerms",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "isLiquidityBond",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "lastDecay", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "maxPayout", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "payoutFor", data: BytesLike): Result;
@@ -211,7 +202,6 @@ interface TimeBondDepositoryInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "policy", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "priceFeed", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "principle", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "pullManagement",
@@ -226,10 +216,6 @@ interface TimeBondDepositoryInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "redeem", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "removeZapper",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "renounceManagement",
     data: BytesLike
@@ -376,14 +362,7 @@ export class TimeBondDepository extends BaseContract {
       }
     >;
 
-    allowZapper(
-      zapper: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    allowedZappers(arg0: string, overrides?: CallOverrides): Promise<[boolean]>;
-
-    assetPrice(overrides?: CallOverrides): Promise<[BigNumber]>;
+    bondCalculator(overrides?: CallOverrides): Promise<[string]>;
 
     bondInfo(
       arg0: string,
@@ -392,8 +371,8 @@ export class TimeBondDepository extends BaseContract {
       [BigNumber, BigNumber, number, number] & {
         payout: BigNumber;
         pricePaid: BigNumber;
-        vesting: number;
         lastTime: number;
+        vesting: number;
       }
     >;
 
@@ -419,17 +398,21 @@ export class TimeBondDepository extends BaseContract {
       _amount: BigNumberish,
       _maxPrice: BigNumberish,
       _depositor: string,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     initializeBondTerms(
       _controlVariable: BigNumberish,
       _minimumPrice: BigNumberish,
       _maxPayout: BigNumberish,
+      _fee: BigNumberish,
       _maxDebt: BigNumberish,
+      _initialDebt: BigNumberish,
       _vestingTerm: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    isLiquidityBond(overrides?: CallOverrides): Promise<[boolean]>;
 
     lastDecay(overrides?: CallOverrides): Promise<[number]>;
 
@@ -452,8 +435,6 @@ export class TimeBondDepository extends BaseContract {
 
     policy(overrides?: CallOverrides): Promise<[string]>;
 
-    priceFeed(overrides?: CallOverrides): Promise<[string]>;
-
     principle(overrides?: CallOverrides): Promise<[string]>;
 
     pullManagement(
@@ -473,11 +454,6 @@ export class TimeBondDepository extends BaseContract {
     redeem(
       _recipient: string,
       _stake: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    removeZapper(
-      zapper: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -514,10 +490,11 @@ export class TimeBondDepository extends BaseContract {
     terms(
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber, BigNumber, BigNumber, number] & {
+      [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, number] & {
         controlVariable: BigNumber;
         minimumPrice: BigNumber;
         maxPayout: BigNumber;
+        fee: BigNumber;
         maxDebt: BigNumber;
         vestingTerm: number;
       }
@@ -546,14 +523,7 @@ export class TimeBondDepository extends BaseContract {
     }
   >;
 
-  allowZapper(
-    zapper: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  allowedZappers(arg0: string, overrides?: CallOverrides): Promise<boolean>;
-
-  assetPrice(overrides?: CallOverrides): Promise<BigNumber>;
+  bondCalculator(overrides?: CallOverrides): Promise<string>;
 
   bondInfo(
     arg0: string,
@@ -562,8 +532,8 @@ export class TimeBondDepository extends BaseContract {
     [BigNumber, BigNumber, number, number] & {
       payout: BigNumber;
       pricePaid: BigNumber;
-      vesting: number;
       lastTime: number;
+      vesting: number;
     }
   >;
 
@@ -581,17 +551,21 @@ export class TimeBondDepository extends BaseContract {
     _amount: BigNumberish,
     _maxPrice: BigNumberish,
     _depositor: string,
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   initializeBondTerms(
     _controlVariable: BigNumberish,
     _minimumPrice: BigNumberish,
     _maxPayout: BigNumberish,
+    _fee: BigNumberish,
     _maxDebt: BigNumberish,
+    _initialDebt: BigNumberish,
     _vestingTerm: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  isLiquidityBond(overrides?: CallOverrides): Promise<boolean>;
 
   lastDecay(overrides?: CallOverrides): Promise<number>;
 
@@ -614,8 +588,6 @@ export class TimeBondDepository extends BaseContract {
 
   policy(overrides?: CallOverrides): Promise<string>;
 
-  priceFeed(overrides?: CallOverrides): Promise<string>;
-
   principle(overrides?: CallOverrides): Promise<string>;
 
   pullManagement(
@@ -635,11 +607,6 @@ export class TimeBondDepository extends BaseContract {
   redeem(
     _recipient: string,
     _stake: boolean,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  removeZapper(
-    zapper: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -676,10 +643,11 @@ export class TimeBondDepository extends BaseContract {
   terms(
     overrides?: CallOverrides
   ): Promise<
-    [BigNumber, BigNumber, BigNumber, BigNumber, number] & {
+    [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, number] & {
       controlVariable: BigNumber;
       minimumPrice: BigNumber;
       maxPayout: BigNumber;
+      fee: BigNumber;
       maxDebt: BigNumber;
       vestingTerm: number;
     }
@@ -708,11 +676,7 @@ export class TimeBondDepository extends BaseContract {
       }
     >;
 
-    allowZapper(zapper: string, overrides?: CallOverrides): Promise<void>;
-
-    allowedZappers(arg0: string, overrides?: CallOverrides): Promise<boolean>;
-
-    assetPrice(overrides?: CallOverrides): Promise<BigNumber>;
+    bondCalculator(overrides?: CallOverrides): Promise<string>;
 
     bondInfo(
       arg0: string,
@@ -721,8 +685,8 @@ export class TimeBondDepository extends BaseContract {
       [BigNumber, BigNumber, number, number] & {
         payout: BigNumber;
         pricePaid: BigNumber;
-        vesting: number;
         lastTime: number;
+        vesting: number;
       }
     >;
 
@@ -747,10 +711,14 @@ export class TimeBondDepository extends BaseContract {
       _controlVariable: BigNumberish,
       _minimumPrice: BigNumberish,
       _maxPayout: BigNumberish,
+      _fee: BigNumberish,
       _maxDebt: BigNumberish,
+      _initialDebt: BigNumberish,
       _vestingTerm: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    isLiquidityBond(overrides?: CallOverrides): Promise<boolean>;
 
     lastDecay(overrides?: CallOverrides): Promise<number>;
 
@@ -773,8 +741,6 @@ export class TimeBondDepository extends BaseContract {
 
     policy(overrides?: CallOverrides): Promise<string>;
 
-    priceFeed(overrides?: CallOverrides): Promise<string>;
-
     principle(overrides?: CallOverrides): Promise<string>;
 
     pullManagement(overrides?: CallOverrides): Promise<void>;
@@ -791,8 +757,6 @@ export class TimeBondDepository extends BaseContract {
       _stake: boolean,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    removeZapper(zapper: string, overrides?: CallOverrides): Promise<void>;
 
     renounceManagement(overrides?: CallOverrides): Promise<void>;
 
@@ -825,10 +789,11 @@ export class TimeBondDepository extends BaseContract {
     terms(
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber, BigNumber, BigNumber, number] & {
+      [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, number] & {
         controlVariable: BigNumber;
         minimumPrice: BigNumber;
         maxPayout: BigNumber;
+        fee: BigNumber;
         maxDebt: BigNumber;
         vestingTerm: number;
       }
@@ -978,14 +943,7 @@ export class TimeBondDepository extends BaseContract {
 
     adjustment(overrides?: CallOverrides): Promise<BigNumber>;
 
-    allowZapper(
-      zapper: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    allowedZappers(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    assetPrice(overrides?: CallOverrides): Promise<BigNumber>;
+    bondCalculator(overrides?: CallOverrides): Promise<BigNumber>;
 
     bondInfo(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1003,17 +961,21 @@ export class TimeBondDepository extends BaseContract {
       _amount: BigNumberish,
       _maxPrice: BigNumberish,
       _depositor: string,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     initializeBondTerms(
       _controlVariable: BigNumberish,
       _minimumPrice: BigNumberish,
       _maxPayout: BigNumberish,
+      _fee: BigNumberish,
       _maxDebt: BigNumberish,
+      _initialDebt: BigNumberish,
       _vestingTerm: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    isLiquidityBond(overrides?: CallOverrides): Promise<BigNumber>;
 
     lastDecay(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1036,8 +998,6 @@ export class TimeBondDepository extends BaseContract {
 
     policy(overrides?: CallOverrides): Promise<BigNumber>;
 
-    priceFeed(overrides?: CallOverrides): Promise<BigNumber>;
-
     principle(overrides?: CallOverrides): Promise<BigNumber>;
 
     pullManagement(
@@ -1057,11 +1017,6 @@ export class TimeBondDepository extends BaseContract {
     redeem(
       _recipient: string,
       _stake: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    removeZapper(
-      zapper: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1111,17 +1066,7 @@ export class TimeBondDepository extends BaseContract {
 
     adjustment(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    allowZapper(
-      zapper: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    allowedZappers(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    assetPrice(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    bondCalculator(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     bondInfo(
       arg0: string,
@@ -1142,17 +1087,21 @@ export class TimeBondDepository extends BaseContract {
       _amount: BigNumberish,
       _maxPrice: BigNumberish,
       _depositor: string,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     initializeBondTerms(
       _controlVariable: BigNumberish,
       _minimumPrice: BigNumberish,
       _maxPayout: BigNumberish,
+      _fee: BigNumberish,
       _maxDebt: BigNumberish,
+      _initialDebt: BigNumberish,
       _vestingTerm: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    isLiquidityBond(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     lastDecay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1175,8 +1124,6 @@ export class TimeBondDepository extends BaseContract {
 
     policy(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    priceFeed(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     principle(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     pullManagement(
@@ -1196,11 +1143,6 @@ export class TimeBondDepository extends BaseContract {
     redeem(
       _recipient: string,
       _stake: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    removeZapper(
-      zapper: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

@@ -23,6 +23,7 @@ interface IUniswapV2PairInterface extends ethers.utils.Interface {
     "getReserves()": FunctionFragment;
     "token0()": FunctionFragment;
     "token1()": FunctionFragment;
+    "totalSupply()": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -31,6 +32,10 @@ interface IUniswapV2PairInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "token0", values?: undefined): string;
   encodeFunctionData(functionFragment: "token1", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "totalSupply",
+    values?: undefined
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "getReserves",
@@ -38,6 +43,10 @@ interface IUniswapV2PairInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "token0", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "token1", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "totalSupply",
+    data: BytesLike
+  ): Result;
 
   events: {};
 }
@@ -90,24 +99,26 @@ export class IUniswapV2Pair extends BaseContract {
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, BigNumber, number] & {
-        _reserve0: BigNumber;
-        _reserve1: BigNumber;
-        _blockTimestampLast: number;
+        reserve0: BigNumber;
+        reserve1: BigNumber;
+        blockTimestampLast: number;
       }
     >;
 
     token0(overrides?: CallOverrides): Promise<[string]>;
 
     token1(overrides?: CallOverrides): Promise<[string]>;
+
+    totalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
   };
 
   getReserves(
     overrides?: CallOverrides
   ): Promise<
     [BigNumber, BigNumber, number] & {
-      _reserve0: BigNumber;
-      _reserve1: BigNumber;
-      _blockTimestampLast: number;
+      reserve0: BigNumber;
+      reserve1: BigNumber;
+      blockTimestampLast: number;
     }
   >;
 
@@ -115,20 +126,24 @@ export class IUniswapV2Pair extends BaseContract {
 
   token1(overrides?: CallOverrides): Promise<string>;
 
+  totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
+
   callStatic: {
     getReserves(
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, BigNumber, number] & {
-        _reserve0: BigNumber;
-        _reserve1: BigNumber;
-        _blockTimestampLast: number;
+        reserve0: BigNumber;
+        reserve1: BigNumber;
+        blockTimestampLast: number;
       }
     >;
 
     token0(overrides?: CallOverrides): Promise<string>;
 
     token1(overrides?: CallOverrides): Promise<string>;
+
+    totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   filters: {};
@@ -139,6 +154,8 @@ export class IUniswapV2Pair extends BaseContract {
     token0(overrides?: CallOverrides): Promise<BigNumber>;
 
     token1(overrides?: CallOverrides): Promise<BigNumber>;
+
+    totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -147,5 +164,7 @@ export class IUniswapV2Pair extends BaseContract {
     token0(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     token1(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    totalSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }
