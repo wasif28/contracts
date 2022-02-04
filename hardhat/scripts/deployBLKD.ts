@@ -199,8 +199,10 @@ async function main() {
 
     await treasury.queue(0, mimBond.address);
     await treasury.queue(4, mimBond.address);
+    await treasury.queue(8, mimBond.address);
     await treasury.queue(0, ethBond.address);
     await treasury.queue(4, ethBond.address);
+    await treasury.queue(8, ethBond.address);
 
     await treasury.queue(4, bondingCalculator.address);
     await treasury.queue(8, bondingCalculator.address);
@@ -220,8 +222,10 @@ async function main() {
 
     await treasury.toggle(0, mimBond.address, zeroAddress);
     await treasury.toggle(4, mimBond.address, zeroAddress);
+    await treasury.toggle(8, mimBond.address, zeroAddress);
     await treasury.toggle(0, ethBond.address, zeroAddress);
     await treasury.toggle(4, ethBond.address, zeroAddress);
+    await treasury.toggle(8, ethBond.address, zeroAddress);
 
     await treasury.toggle(4, bondingCalculator.address, zeroAddress)
     await treasury.toggle(8, bondingCalculator.address, zeroAddress)
